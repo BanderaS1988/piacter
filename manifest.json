@@ -75,22 +75,7 @@
       "purpose": "maskable"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "PiacTér – Főoldal asztali nézetben"
-    },
-    {
-      "src": "/screenshots/mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "PiacTér – Főoldal mobil nézetben"
-    }
-  ],
+ 
   "shortcuts": [
     {
       "name": "Hirdetés feladása",
