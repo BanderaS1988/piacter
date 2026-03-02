@@ -2231,32 +2231,53 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // ============================================================
 (function loadSupabase() {
   console.log('🔄 Supabase SDK betöltése...');
+  
   const script = document.createElement('script');
-  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.0/supabase-js.min.js';
+  script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  script.crossOrigin = 'anonymous';
   
   script.onload = () => {
-    console.log('✅ Supabase SDK betöltve!');
+    console.log('✅ Supabase SDK script betöltve!');
     
-    // Supabase client létrehozása
-    window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
+    // Várunk egy kicsit, hogy a supabase globális változó elérhető legyen
+    setTimeout(() => {
+      try {
+        if (typeof supabase === 'undefined') {
+          console.error('❌ supabase globális változó nem található!');
+          return;
+        }
+        
+        console.log('✅ supabase objektum elérhető:', supabase);
+        
+        // Supabase client létrehozása
+        window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: true
+          }
+        });
+        
+        console.log('✅ Supabase inicializálva!', window.sb);
+        console.log('✅ window.sb.auth elérhető:', window.sb.auth);
+        
+        // Teszteljük hogy működik-e
+        if (window.sb && window.sb.auth) {
+          console.log('🎉 MINDEN RENDBEN! A regisztráció most már működnie kell!');
+        }
+      } catch (error) {
+        console.error('❌ Hiba az inicializálás során:', error);
       }
-    });
-    
-    console.log('✅ Supabase inicializálva!', window.sb);
-    console.log('✅ window.sb.auth:', window.sb.auth);
+    }, 100);
   };
   
-  script.onerror = () => {
-    console.error('❌ Supabase SDK betöltése SIKERTELEN!');
-    showToast('❌ Hiba: Supabase SDK nem töltődött be!', 'error');
+  script.onerror = (error) => {
+    console.error('❌ Supabase SDK betöltése SIKERTELEN!', error);
   };
   
   document.head.appendChild(script);
 })();
+
 
 
 // ========== DATA ==========
