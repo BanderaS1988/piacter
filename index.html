@@ -2225,7 +2225,40 @@ footer {
 // ============================================================
 const SUPABASE_URL = 'https://igzxrqqhgebaygyjmqux.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlnenhycXFoZ2ViYXlneWptcXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NTg0OTgsImV4cCI6MjA4ODAzNDQ5OH0.c7y7Lads7f4p0hKUtVByp3QWBSIKeus0ABcBfvTNm3g';
+
+// ============================================================
+// SUPABASE SDK BETÖLTÉSE ÉS INICIALIZÁLÁSA
+// ============================================================
+(function loadSupabase() {
+  console.log('🔄 Supabase SDK betöltése...');
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.0/supabase-js.min.js';
   
+  script.onload = () => {
+    console.log('✅ Supabase SDK betöltve!');
+    
+    // Supabase client létrehozása
+    window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    });
+    
+    console.log('✅ Supabase inicializálva!', window.sb);
+    console.log('✅ window.sb.auth:', window.sb.auth);
+  };
+  
+  script.onerror = () => {
+    console.error('❌ Supabase SDK betöltése SIKERTELEN!');
+    showToast('❌ Hiba: Supabase SDK nem töltődött be!', 'error');
+  };
+  
+  document.head.appendChild(script);
+})();
+
+
 // ========== DATA ==========
 const categories = {
   "📱 Elektronika": ["Mobiltelefonok","Laptopok","Táblagépek","TV & Hangszórók","Fényképezőgépek","Számítógépek","Konzolok & Játékok","Kisháztartási gépek","Egyéb elektronika"],
