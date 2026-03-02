@@ -2999,16 +2999,6 @@ function submitContact(e) {
     });
 }
 
-// URL paraméter ellenőrzése oldalbetöltéskor
-document.addEventListener('DOMContentLoaded', function() {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('contact') === 'success') {
-    showToast('✅ Üzeneted megkaptuk! Hamarosan válaszolunk.', 'success');
-    // Tisztítjuk az URL-t
-    window.history.replaceState({}, '', window.location.pathname);
-  }
-});
-
 // ========== INVOICE ==========
 function openInvoice(id) {
   const l = sampleListings.find(x=>x.id===id);
