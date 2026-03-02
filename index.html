@@ -2826,31 +2826,14 @@ function acceptGDPR() {
   showToast('✅ Süti beállítások mentve!','success');
 }
 
-// ========== AUTH ==========
-async function doLogin() {
-  const email = document.querySelector('#loginModal input[type="email"]').value;
-  const password = document.querySelector('#loginModal input[type="password"]').value;
-
-  if (!email || !password) {
-    showToast('Töltsd ki az összes mezőt!', 'error');
-    return;
-  }
-
-  const { data, error } = await window.sb.auth.signInWithPassword({
-    email: email,
-    password: password
-  });
-
-  if (error) {
-    showToast('Hibás e-mail vagy jelszó!', 'error');
-    return;
-  }
-
-  closeModal('loginModal');
-  showToast('✅ Sikeres bejelentkezés!', 'success');
-}
-
 async function doRegister() {
+  // ✅ ELSŐ LÉPÉS: Ellenőrizzük, hogy a Supabase betöltődött-e
+  if (!window.sb) {
+    showToast('⏳ Kérlek várj, az oldal még töltődik...', 'error');
+    console.error('❌ Supabase (window.sb) még nincs inicializálva!');
+    return;
+  }
+
   const inputs = document.querySelectorAll('#registerModal input');
   const firstName = inputs[0].value;
   const lastName = inputs[1].value;
@@ -2878,6 +2861,9 @@ async function doRegister() {
     return;
   }
 
+  // ✅ KONZOL LOGOLÁS DEBUG-OLÁSHOZ
+  console.log('🔄 Regisztráció indítása...', { email, username });
+
   const { data, error } = await window.sb.auth.signUp({
     email: email,
     password: password,
@@ -2890,17 +2876,16 @@ async function doRegister() {
     }
   });
 
+  // ✅ RÉSZLETES HIBAÜZENET
   if (error) {
+    console.error('❌ Regisztrációs hiba:', error);
     showToast(error.message, 'error');
     return;
   }
 
+  console.log('✅ Regisztráció sikeres:', data);
   closeModal('registerModal');
   showToast('✅ Sikeres regisztráció! Ellenőrizd az e-mailed a megerősítéshez.', 'success');
-}
-
-function saveProfile() { 
-  showToast('✅ Profil mentve!', 'success'); 
 }
 
 // ========== TOAST ==========
