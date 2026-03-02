@@ -1,0 +1,3065 @@
+<!DOCTYPE html>
+<html lang="hu" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PiacTér – Az okos piactér</title>
+<meta name="description" content="PiacTér – Magyarország legjobb online piactere. Adj el, vegyél, cserélj bármit!">
+<meta name="keywords" content="piactér, eladó, vásárlás, hirdetés, használt, új, magyar piactér, online bolt">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="PiacTér – Az okos piactér">
+<meta property="og:description" content="Millió hirdetés, ingyenes feladás, biztonságos fizetés.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://piacter.hu">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e85d04">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"PiacTér","url":"https://piacter.hu","potentialAction":{"@type":"SearchAction","target":"https://piacter.hu/kereses?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+<style>
+:root {
+  --primary: #e85d04;
+  --primary-dark: #c44d03;
+  --secondary: #f48c06;
+  --accent: #ffba08;
+  --bg: #f8f9fa;
+  --surface: #ffffff;
+  --surface2: #f1f3f5;
+  --text: #212529;
+  --text2: #6c757d;
+  --border: #dee2e6;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-hover: 0 8px 30px rgba(0,0,0,0.15);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --success: #2d6a4f;
+  --danger: #d62828;
+  --info: #0077b6;
+  --premium: #7b2d8b;
+}
+[data-theme="dark"] {
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --surface2: #2a2a2a;
+  --text: #f0f0f0;
+  --text2: #aaaaaa;
+  --border: #333333;
+  --shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+img { max-width: 100%; }
+button { cursor: pointer; font-family: inherit; }
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  position: sticky; top: 0; z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.header-top {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 20px; max-width: 1400px; margin: 0 auto;
+  flex-wrap: wrap;
+}
+.logo {
+  font-size: 1.8rem; font-weight: 900; color: white;
+  letter-spacing: -1px; white-space: nowrap;
+}
+.logo span { color: var(--accent); }
+.search-bar {
+  flex: 1; display: flex; min-width: 200px;
+}
+.search-bar input {
+  flex: 1; padding: 10px 16px; border: none; border-radius: var(--radius) 0 0 var(--radius);
+  font-size: 1rem; outline: none; background: white; color: #333;
+}
+.search-bar select {
+  padding: 10px; border: none; border-left: 1px solid #ddd;
+  background: white; color: #333; font-size: 0.9rem; outline: none;
+}
+.search-bar button {
+  padding: 10px 20px; background: var(--accent); border: none;
+  border-radius: 0 var(--radius) var(--radius) 0; font-weight: 700;
+  color: #333; font-size: 1rem;
+}
+.header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn { padding: 8px 16px; border-radius: var(--radius-sm); border: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-white { background: white; color: var(--primary); }
+.btn-white:hover { background: #ffe; }
+.btn-outline-white { background: transparent; color: white; border: 2px solid white; }
+.btn-outline-white:hover { background: rgba(255,255,255,0.15); }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border); }
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-premium { background: var(--premium); color: white; }
+.btn-lg { padding: 12px 24px; font-size: 1rem; border-radius: var(--radius); }
+
+/* NAV */
+nav.main-nav {
+  background: rgba(0,0,0,0.15);
+  overflow-x: auto;
+}
+nav.main-nav ul {
+  display: flex; list-style: none;
+  padding: 0 20px; max-width: 1400px; margin: 0 auto;
+  gap: 0;
+}
+nav.main-nav ul li a {
+  display: block; padding: 10px 16px; color: white;
+  font-size: 0.9rem; white-space: nowrap; opacity: 0.9;
+  transition: background 0.2s;
+}
+nav.main-nav ul li a:hover { background: rgba(255,255,255,0.15); text-decoration: none; opacity: 1; }
+
+/* MAIN LAYOUT */
+main { max-width: 1400px; margin: 0 auto; padding: 20px; }
+.layout-cols { display: grid; grid-template-columns: 260px 1fr; gap: 20px; }
+@media (max-width: 900px) { .layout-cols { grid-template-columns: 1fr; } }
+
+/* SIDEBAR */
+.sidebar { display: flex; flex-direction: column; gap: 16px; }
+.card {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.card-header {
+  padding: 14px 18px; font-weight: 700; font-size: 1rem;
+  border-bottom: 1px solid var(--border); background: var(--surface2);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-body { padding: 16px; }
+.category-tree { list-style: none; }
+.category-tree li { border-bottom: 1px solid var(--border); }
+.category-tree li:last-child { border-bottom: none; }
+.cat-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; cursor: pointer; transition: background 0.15s;
+  border: none; background: none; width: 100%; text-align: left;
+  color: var(--text); font-size: 0.9rem;
+}
+.cat-item:hover { background: var(--surface2); }
+.cat-item .cat-icon { font-size: 1.2rem; margin-right: 8px; }
+.cat-item .cat-count { font-size: 0.78rem; color: var(--text2); background: var(--surface2); padding: 2px 7px; border-radius: 20px; }
+.subcats { list-style: none; background: var(--surface2); display: none; }
+.subcats.open { display: block; }
+.subcats li { padding: 8px 14px 8px 36px; font-size: 0.85rem; cursor: pointer; }
+.subcats li:hover { background: var(--border); }
+.filter-group { margin-bottom: 14px; }
+.filter-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.filter-group input[type=range] { width: 100%; }
+.filter-group input[type=text], .filter-group select {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--surface); color: var(--text);
+  font-size: 0.9rem;
+}
+.price-range { display: flex; gap: 8px; align-items: center; }
+.price-range input { flex: 1; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); font-size: 0.85rem; }
+.check-list { list-style: none; }
+.check-list li { padding: 4px 0; display: flex; align-items: center; gap: 8px; font-size: 0.88rem; }
+.check-list input[type=checkbox] { accent-color: var(--primary); }
+
+/* CONTENT AREA */
+.content-area { display: flex; flex-direction: column; gap: 20px; }
+
+/* HERO BANNER */
+.hero {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7c59f 50%, var(--accent) 100%);
+  border-radius: var(--radius); padding: 40px; color: white;
+  text-align: center; position: relative; overflow: hidden;
+}
+.hero h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.hero p { font-size: 1.1rem; margin-bottom: 20px; opacity: 0.95; }
+.hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* STATS BAR */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.stat-card {
+  background: var(--surface); border-radius: var(--radius);
+  padding: 16px; text-align: center; box-shadow: var(--shadow);
+}
+.stat-card .val { font-size: 1.8rem; font-weight: 900; color: var(--primary); }
+.stat-card .lbl { font-size: 0.82rem; color: var(--text2); margin-top: 4px; }
+
+/* LISTING GRID */
+.listings-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+}
+.listings-header h2 { font-size: 1.2rem; font-weight: 700; }
+.sort-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.sort-bar select { padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); font-size: 0.88rem; }
+.view-toggle { display: flex; gap: 4px; }
+.view-btn { padding: 7px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: var(--radius-sm); font-size: 1rem; }
+.view-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.listings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.listings-grid.list-view { grid-template-columns: 1fr; }
+
+.listing-card {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; cursor: pointer;
+}
+.listing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+.listing-card.premium-listing { border: 2px solid var(--premium); }
+.listing-card.featured-listing { border: 2px solid var(--accent); }
+.badge-ribbon {
+  position: absolute; top: 10px; left: 10px; z-index: 2;
+  padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.badge-premium { background: var(--premium); color: white; }
+.badge-featured { background: var(--accent); color: #333; }
+.badge-new { background: var(--success); color: white; }
+.badge-hot { background: var(--danger); color: white; }
+.wish-btn {
+  position: absolute; top: 10px; right: 10px; z-index: 2;
+  background: rgba(255,255,255,0.9); border: none; border-radius: 50%;
+  width: 32px; height: 32px; font-size: 1rem; display: flex;
+  align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.wish-btn:hover { background: white; }
+.listing-img {
+  width: 100%; height: 180px; object-fit: cover; background: var(--surface2);
+  display: flex; align-items: center; justify-content: center; font-size: 3rem;
+}
+.listing-img img { width: 100%; height: 100%; object-fit: cover; }
+.listing-body { padding: 12px; }
+.listing-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.listing-price { font-size: 1.2rem; font-weight: 900; color: var(--primary); }
+.listing-price.negotiable::after { content: " (alkuképes)"; font-size: 0.72rem; color: var(--text2); font-weight: 400; }
+.listing-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+.listing-location { font-size: 0.78rem; color: var(--text2); display: flex; align-items: center; gap: 3px; }
+.listing-date { font-size: 0.75rem; color: var(--text2); }
+.seller-inline { display: flex; align-items: center; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.avatar-sm { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; }
+.seller-name-sm { font-size: 0.8rem; color: var(--text2); }
+.stars-sm { color: var(--accent); font-size: 0.75rem; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 5000; display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: var(--radius);
+  width: 100%; max-width: 700px; max-height: 90vh;
+  overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+.modal-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: 0; background: var(--surface); z-index: 1;
+}
+.modal-header h2 { font-size: 1.2rem; }
+.modal-close { background: none; border: none; font-size: 1.5rem; color: var(--text2); padding: 0 6px; }
+.modal-body { padding: 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; background: var(--surface); }
+
+/* FORM */
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 6px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.4px; }
+.form-control {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--surface); color: var(--text);
+  font-size: 0.95rem; font-family: inherit; transition: border-color 0.2s;
+}
+.form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(232,93,4,0.1); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+.form-hint { font-size: 0.78rem; color: var(--text2); margin-top: 4px; }
+.required { color: var(--danger); }
+
+/* IMAGE UPLOAD */
+.img-upload-area {
+  border: 2px dashed var(--border); border-radius: var(--radius);
+  padding: 30px; text-align: center; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.img-upload-area:hover, .img-upload-area.drag { border-color: var(--primary); background: rgba(232,93,4,0.04); }
+.img-upload-area .upload-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.img-upload-area p { color: var(--text2); font-size: 0.9rem; }
+.img-upload-area input { display: none; }
+.img-previews { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.img-preview {
+  position: relative; width: 80px; height: 80px;
+  border-radius: var(--radius-sm); overflow: hidden;
+  border: 2px solid var(--border);
+}
+.img-preview img { width: 100%; height: 100%; object-fit: cover; }
+.img-remove {
+  position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7);
+  color: white; border: none; border-radius: 50%; width: 18px; height: 18px;
+  font-size: 0.7rem; display: flex; align-items: center; justify-content: center;
+}
+
+/* TABS */
+.tabs { display: flex; border-bottom: 2px solid var(--border); gap: 0; margin-bottom: 20px; }
+.tab {
+  padding: 10px 20px; border: none; background: none; font-size: 0.9rem;
+  font-weight: 600; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -2px; transition: all 0.2s; font-family: inherit;
+}
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab:hover { color: var(--primary); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* RATING */
+.stars-input { display: flex; gap: 4px; }
+.star { font-size: 1.8rem; cursor: pointer; color: var(--border); transition: color 0.1s; }
+.star.lit { color: var(--accent); }
+.review-card { background: var(--surface2); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px; }
+.review-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.reviewer { font-weight: 600; font-size: 0.9rem; }
+.review-date { font-size: 0.78rem; color: var(--text2); }
+.review-text { font-size: 0.88rem; color: var(--text); }
+.stars { color: var(--accent); }
+
+/* PROGRESS / STATS */
+.progress-bar { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 4px; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.stat-row .lbl { font-size: 0.85rem; color: var(--text2); }
+.stat-row .val { font-weight: 700; font-size: 0.9rem; }
+
+/* SELLER PROFILE */
+.profile-header {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: var(--radius); padding: 30px; color: white; text-align: center; margin-bottom: 20px;
+}
+.avatar-lg {
+  width: 80px; height: 80px; border-radius: 50%; background: white;
+  color: var(--primary); display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; font-weight: 900; margin: 0 auto 12px;
+  border: 4px solid rgba(255,255,255,0.5);
+}
+.verified-badge { background: var(--success); padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; display: inline-block; margin-top: 6px; }
+.profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; margin-top: 16px; }
+.profile-stat .val { font-size: 1.4rem; font-weight: 900; }
+.profile-stat .lbl { font-size: 0.78rem; opacity: 0.85; }
+
+/* PAYMENT */
+.payment-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.payment-option {
+  border: 2px solid var(--border); border-radius: var(--radius);
+  padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s;
+}
+.payment-option:hover, .payment-option.selected { border-color: var(--primary); background: rgba(232,93,4,0.05); }
+.payment-option .pay-icon { font-size: 2rem; margin-bottom: 8px; }
+.payment-option .pay-name { font-weight: 600; font-size: 0.9rem; }
+.payment-option .pay-desc { font-size: 0.75rem; color: var(--text2); margin-top: 3px; }
+
+/* BOOST / PROMOTE */
+.boost-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.boost-plan {
+  border: 2px solid var(--border); border-radius: var(--radius);
+  padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s;
+  position: relative;
+}
+.boost-plan:hover { border-color: var(--primary); }
+.boost-plan.popular { border-color: var(--premium); }
+.popular-tag {
+  position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+  background: var(--premium); color: white; font-size: 0.7rem; font-weight: 700;
+  padding: 2px 10px; border-radius: 20px; white-space: nowrap;
+}
+.boost-plan .plan-name { font-weight: 700; margin-bottom: 6px; }
+.boost-plan .plan-price { font-size: 1.4rem; font-weight: 900; color: var(--primary); }
+.boost-plan .plan-duration { font-size: 0.78rem; color: var(--text2); }
+.boost-plan ul { list-style: none; margin-top: 10px; font-size: 0.82rem; text-align: left; }
+.boost-plan ul li::before { content: "✓ "; color: var(--success); }
+
+/* MESSAGES */
+.msg-list { display: flex; flex-direction: column; gap: 8px; }
+.msg-item {
+  display: flex; gap: 12px; padding: 12px;
+  border-radius: var(--radius-sm); background: var(--surface2);
+  cursor: pointer; transition: background 0.15s;
+}
+.msg-item:hover { background: var(--border); }
+.msg-item.unread { border-left: 3px solid var(--primary); }
+.msg-content { flex: 1; min-width: 0; }
+.msg-from { font-weight: 600; font-size: 0.9rem; }
+.msg-preview { font-size: 0.82rem; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msg-time { font-size: 0.75rem; color: var(--text2); white-space: nowrap; }
+.chat-area { display: flex; flex-direction: column; height: 400px; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.chat-msg { max-width: 75%; }
+.chat-msg.own { align-self: flex-end; }
+.chat-bubble {
+  padding: 10px 14px; border-radius: 18px; font-size: 0.88rem;
+  background: var(--surface2);
+}
+.chat-msg.own .chat-bubble { background: var(--primary); color: white; }
+.chat-input-bar { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--border); }
+.chat-input-bar input { flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface); color: var(--text); font-family: inherit; }
+
+/* TOAST */
+.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  padding: 12px 20px; border-radius: var(--radius-sm); color: white;
+  box-shadow: var(--shadow-hover); font-size: 0.9rem; font-weight: 500;
+  animation: slideIn 0.3s ease; min-width: 250px;
+}
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.info { background: var(--info); }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* ANALYTICS */
+.chart-bar { display: flex; align-items: flex-end; gap: 8px; height: 120px; margin: 12px 0; }
+.chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.chart-fill {
+  width: 100%; background: var(--primary); border-radius: 4px 4px 0 0;
+  opacity: 0.85; transition: opacity 0.2s;
+  min-height: 4px;
+}
+.chart-fill:hover { opacity: 1; }
+.chart-label { font-size: 0.7rem; color: var(--text2); }
+.chart-val { font-size: 0.72rem; font-weight: 700; color: var(--text2); }
+
+/* GDPR BANNER */
+.gdpr-banner {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 4000;
+  background: #1a1a1a; color: #f0f0f0; padding: 16px 24px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+}
+.gdpr-banner p { flex: 1; font-size: 0.85rem; min-width: 200px; }
+.gdpr-banner a { color: var(--accent); }
+.gdpr-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.gdpr-banner .btn-accept { background: var(--primary); color: white; padding: 8px 16px; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; }
+.gdpr-banner .btn-settings { background: transparent; color: #ccc; padding: 8px 16px; border: 1px solid #555; border-radius: var(--radius-sm); cursor: pointer; }
+
+/* FOOTER */
+footer {
+  background: #1a1a1a; color: #ccc; margin-top: 60px; padding: 50px 20px 20px;
+}
+.footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; max-width: 1400px; margin: 0 auto 30px; }
+.footer-col h4 { color: white; font-size: 1rem; margin-bottom: 14px; }
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 8px; }
+.footer-col ul li a { color: #aaa; font-size: 0.88rem; }
+.footer-col ul li a:hover { color: white; }
+.footer-bottom { border-top: 1px solid #333; padding-top: 20px; text-align: center; font-size: 0.82rem; color: #777; max-width: 1400px; margin: 0 auto; }
+.payment-logos { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.pay-logo { background: white; color: #333; padding: 4px 12px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; }
+
+/* HAMBURGER */
+.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 6px; }
+.hamburger span { display: block; width: 24px; height: 2px; background: white; border-radius: 2px; transition: all 0.3s; }
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.mobile-nav { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; }
+.mobile-nav.open { display: flex; }
+.mobile-nav-inner {
+  width: 280px; background: var(--surface); height: 100%; overflow-y: auto;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.3); display: flex; flex-direction: column;
+  animation: slideInLeft 0.25s ease;
+}
+@keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+.mobile-nav-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 20px; color: white; }
+.mobile-nav-header .logo { font-size: 1.6rem; }
+.mobile-nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.95rem; cursor: pointer; transition: background 0.15s; border: none; background: none; width: 100%; text-align: left; font-family: inherit; }
+.mobile-nav-item:hover { background: var(--surface2); }
+.mobile-nav-item .nav-icon { font-size: 1.2rem; width: 28px; text-align: center; }
+.mobile-nav-section { padding: 10px 20px 4px; font-size: 0.72rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+
+/* BOTTOM NAV (mobile) */
+.bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 2000; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); }
+.bottom-nav-inner { display: flex; justify-content: space-around; padding: 6px 0 calc(6px + env(safe-area-inset-bottom)); }
+.bottom-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 12px; background: none; border: none; color: var(--text2); font-size: 0.65rem; font-weight: 600; cursor: pointer; transition: color 0.2s; font-family: inherit; min-width: 56px; }
+.bottom-nav-btn .bn-icon { font-size: 1.4rem; }
+.bottom-nav-btn.active, .bottom-nav-btn:hover { color: var(--primary); }
+.bottom-nav-btn.post-btn { background: var(--primary); color: white; border-radius: 16px; padding: 6px 16px; }
+.bottom-nav-btn.post-btn:hover { background: var(--primary-dark); color: white; }
+
+/* FAB */
+.fab { display: none; position: fixed; bottom: 80px; right: 16px; z-index: 1500; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 1.6rem; box-shadow: 0 4px 16px rgba(232,93,4,0.4); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.fab:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(232,93,4,0.5); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  /* HEADER */
+  .hamburger { display: flex; }
+  .header-top { padding: 8px 12px; gap: 8px; }
+  .logo { font-size: 1.3rem; }
+  .search-bar { order: 3; width: 100%; min-width: unset; }
+  .search-bar select { display: none; }
+  .header-actions .btn-outline-white:not(.hamburger-area), .header-actions > div { display: none; }
+  .header-actions { gap: 6px; }
+  nav.main-nav { display: none; }
+  
+  /* HERO */
+  .hero { padding: 24px 16px; }
+  .hero h1 { font-size: 1.4rem; }
+  .hero p { font-size: 0.92rem; }
+  .hero-btns .btn { padding: 10px 14px; font-size: 0.85rem; }
+
+  /* STATS */
+  .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .stat-card .val { font-size: 1.3rem; }
+
+  /* LAYOUT */
+  .layout-cols { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .sidebar.mobile-open { display: flex; }
+
+  /* LISTINGS */
+  .listings-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .listing-img { height: 140px; }
+  .listing-body { padding: 8px; }
+  .listing-title { font-size: 0.82rem; }
+  .listing-price { font-size: 1rem; }
+  .seller-inline { display: none; }
+
+  /* MODALS */
+  .modal { border-radius: var(--radius) var(--radius) 0 0; max-height: 92vh; margin-top: auto; margin-bottom: 0; max-width: 100% !important; width: 100%; }
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal-header { padding: 14px 16px; }
+  .modal-body { padding: 16px; }
+  .modal-footer { padding: 12px 16px; }
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+  .boost-plans { grid-template-columns: 1fr 1fr; }
+  .payment-options { grid-template-columns: 1fr 1fr; }
+
+  /* ADMIN TABLE */
+  table { font-size: 0.75rem; }
+  th, td { padding: 5px 4px !important; }
+
+  /* BOTTOM NAV */
+  .bottom-nav { display: block; }
+  .fab { display: flex; align-items: center; justify-content: center; }
+  main { padding: 12px; padding-bottom: 80px; }
+
+  /* PROFILE */
+  .profile-stats { grid-template-columns: repeat(3,1fr); }
+
+  /* TABS scroll */
+  .tabs { overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 10px 14px; font-size: 0.82rem; }
+
+  /* CHAT */
+  .chat-area, #chatMessages { height: 280px; }
+
+  /* FILTER sidebar toggle */
+  .mobile-filter-bar { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .mobile-filter-bar::-webkit-scrollbar { display: none; }
+  .filter-chip { white-space: nowrap; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.82rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .filter-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+}
+
+@media (max-width: 480px) {
+  .listings-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .hero h1 { font-size: 1.2rem; }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .boost-plans { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 769px) {
+  .mobile-filter-bar { display: none; }
+  .bottom-nav { display: none; }
+  .fab { display: none; }
+}
+
+/* NOTIFICATIONS */
+.notif-dot {
+  position: absolute; top: -4px; right: -4px; width: 10px; height: 10px;
+  background: var(--danger); border-radius: 50%; border: 2px solid white;
+}
+.notif-btn { position: relative; }
+
+/* SKELETON LOADING */
+.skeleton { background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: var(--radius-sm); }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skeleton-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.skeleton-img { height: 180px; }
+.skeleton-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.skeleton-line { height: 14px; }
+.skeleton-line.short { width: 60%; }
+.skeleton-line.shorter { width: 40%; }
+
+/* SEARCH AUTOCOMPLETE */
+.autocomplete-box { position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow-hover); z-index: 500; max-height: 320px; overflow-y: auto; }
+.autocomplete-item { padding: 10px 16px; cursor: pointer; font-size: 0.88rem; display: flex; align-items: center; gap: 10px; transition: background 0.15s; }
+.autocomplete-item:hover { background: var(--surface2); }
+.autocomplete-section { padding: 6px 16px; font-size: 0.72rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid var(--border); }
+.search-wrapper { position: relative; flex: 1; display: flex; }
+.search-wrapper input { flex: 1; padding: 10px 16px; border: none; border-radius: var(--radius) 0 0 var(--radius); font-size: 1rem; outline: none; background: white; color: #333; width: 100%; }
+
+/* GALLERY */
+.gallery-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 8000; display: none; align-items: center; justify-content: center; }
+.gallery-modal.open { display: flex; }
+.gallery-inner { position: relative; width: 100%; max-width: 800px; padding: 20px; }
+.gallery-img-wrap { text-align: center; font-size: 8rem; min-height: 300px; display: flex; align-items: center; justify-content: center; user-select: none; }
+.gallery-img-wrap img { max-height: 70vh; max-width: 100%; border-radius: var(--radius); }
+.gallery-prev, .gallery-next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: none; color: white; font-size: 1.8rem; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+.gallery-prev { left: 0; } .gallery-next { right: 0; }
+.gallery-prev:hover, .gallery-next:hover { background: rgba(255,255,255,0.3); }
+.gallery-close { position: absolute; top: -10px; right: 0; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
+.gallery-dots { display: flex; gap: 6px; justify-content: center; margin-top: 14px; }
+.gallery-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; border: none; transition: background 0.2s; }
+.gallery-dot.active { background: white; }
+.gallery-counter { text-align: center; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-top: 8px; }
+.gallery-thumbnails { display: flex; gap: 8px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+.gallery-thumb { width: 50px; height: 50px; border-radius: 6px; background: rgba(255,255,255,0.1); border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; transition: border-color 0.15s; }
+.gallery-thumb.active { border-color: white; }
+
+/* ZOOM */
+.zoom-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9000; display: none; align-items: center; justify-content: center; cursor: zoom-out; }
+.zoom-overlay.open { display: flex; }
+.zoom-img { font-size: 12rem; transform: scale(1); transition: transform 0.3s; }
+
+/* WATCHING NOW */
+.watching-now { display: inline-flex; align-items: center; gap: 6px; background: rgba(214,40,40,0.1); color: var(--danger); padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+
+/* CONFETTI */
+.confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+.confetti-piece { position: absolute; width: 10px; height: 10px; top: -10px; animation: confettiFall linear forwards; border-radius: 2px; }
+@keyframes confettiFall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+/* BADGES */
+.seller-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+.badge-fast { background: #e3f9e5; color: #1b5e20; }
+.badge-trusted { background: #e3f2fd; color: #0d47a1; }
+.badge-verified-seller { background: #fff3e0; color: #e65100; }
+.badge-top { background: #f3e5f5; color: #4a148c; }
+
+/* SCAM WARNING */
+.scam-warning { background: #fff8e1; border: 1px solid #ffc107; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.82rem; color: #856404; display: flex; gap: 8px; align-items: flex-start; margin-bottom: 12px; }
+
+/* OFFLINE */
+.offline-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 9998; background: var(--danger); color: white; text-align: center; padding: 8px; font-size: 0.85rem; font-weight: 600; transform: translateY(-100%); transition: transform 0.3s; }
+.offline-bar.show { transform: translateY(0); }
+
+/* PWA INSTALL */
+.pwa-banner { position: fixed; bottom: 70px; left: 12px; right: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow-hover); z-index: 1800; display: none; align-items: center; gap: 12px; }
+.pwa-banner.show { display: flex; }
+.pwa-banner-icon { font-size: 2rem; }
+.pwa-banner-text { flex: 1; font-size: 0.85rem; }
+.pwa-banner-text strong { display: block; margin-bottom: 2px; }
+
+/* READ RECEIPT */
+.read-receipt { font-size: 0.7rem; color: #4fc3f7; margin-left: 4px; }
+
+/* QUICK REPLIES */
+.quick-replies { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 10px; border-top: 1px solid var(--border); }
+.quick-reply { padding: 5px 12px; border: 1px solid var(--primary); border-radius: 20px; font-size: 0.78rem; color: var(--primary); background: none; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.quick-reply:hover { background: var(--primary); color: white; }
+
+/* TOOLTIP */
+.tooltip { position: relative; }
+.tooltip::after {
+  content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  background: #333; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.78rem;
+  white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.2s; margin-bottom: 6px;
+}
+.tooltip:hover::after { opacity: 1; }
+
+/* DROPDOWN */
+.dropdown { position: relative; }
+.dropdown-menu {
+  position: absolute; top: calc(100% + 8px); right: 0; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-hover); min-width: 200px; z-index: 2000; display: none;
+}
+.dropdown-menu.open { display: block; }
+.dropdown-item { display: block; padding: 10px 16px; color: var(--text); font-size: 0.9rem; transition: background 0.15s; border: none; background: none; width: 100%; text-align: left; font-family: inherit; cursor: pointer; }
+.dropdown-item:hover { background: var(--surface2); }
+.dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* BREADCRUMB */
+.breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text2); margin-bottom: 16px; flex-wrap: wrap; }
+.breadcrumb a { color: var(--text2); }
+.breadcrumb a:hover { color: var(--primary); }
+.breadcrumb-sep { color: var(--border); }
+
+/* CONDITION BADGE */
+.condition { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+.condition-new { background: #d4edda; color: #155724; }
+.condition-like-new { background: #cce5ff; color: #004085; }
+.condition-good { background: #fff3cd; color: #856404; }
+.condition-used { background: #f8d7da; color: #721c24; }
+
+/* STICKY ACTION BAR */
+.sticky-action {
+  position: sticky; bottom: 0; background: var(--surface);
+  border-top: 1px solid var(--border); padding: 12px 20px;
+  display: flex; gap: 10px; z-index: 100;
+}
+</style>
+</head>
+<body>
+
+<!-- SIMILAR LISTINGS SECTION (injected into detail modal dynamically) -->
+<!-- MAP MODAL -->
+<div class="modal-overlay" id="mapModal">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header"><h2>📍 Helyszín a térképen</h2><button class="modal-close" onclick="closeModal('mapModal')">✕</button></div>
+    <div class="modal-body" style="padding:0">
+      <div id="leafletMap" style="height:380px;border-radius:0 0 var(--radius) var(--radius)"></div>
+      <div style="padding:14px;font-size:0.85rem;color:var(--text2)" id="mapAddress"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHOP PROFILE MODAL -->
+<div class="modal-overlay" id="shopModal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header"><h2>🏪 Bolt / Üzlet Profil</h2><button class="modal-close" onclick="closeModal('shopModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:linear-gradient(135deg,#e85d04,#f48c06);border-radius:var(--radius);padding:24px;color:white;text-align:center;margin-bottom:20px">
+        <div style="font-size:3rem;margin-bottom:8px">🏪</div>
+        <div style="font-size:1.4rem;font-weight:900" id="shopName">TechStore Pro</div>
+        <div style="opacity:0.85;font-size:0.88rem;margin-top:4px">⭐ 4.9 · 312 értékelés · Budapest</div>
+        <div style="margin-top:8px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+          <span style="background:rgba(255,255,255,0.2);padding:3px 12px;border-radius:20px;font-size:0.78rem">✓ Ellenőrzött kereskedő</span>
+          <span style="background:rgba(255,255,255,0.2);padding:3px 12px;border-radius:20px;font-size:0.78rem">🏆 Prémium bolt</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px">
+          <div><div style="font-size:1.4rem;font-weight:900">247</div><div style="font-size:0.75rem;opacity:0.85">Aktív hirdetés</div></div>
+          <div><div style="font-size:1.4rem;font-weight:900">1,842</div><div style="font-size:0.75rem;opacity:0.85">Eladás</div></div>
+          <div><div style="font-size:1.4rem;font-weight:900">3 év</div><div style="font-size:0.75rem;opacity:0.85">Tagság</div></div>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('shopTabs','sh-listings')">Hirdetések</button>
+        <button class="tab" onclick="switchTab('shopTabs','sh-reviews')">Értékelések</button>
+        <button class="tab" onclick="switchTab('shopTabs','sh-info')">Infó</button>
+      </div>
+      <div id="shopTabs">
+        <div id="sh-listings" class="tab-content active">
+          <div class="listings-grid" id="shopListings" style="margin-top:12px"></div>
+        </div>
+        <div id="sh-reviews" class="tab-content">
+          <div id="shopReviews" style="margin-top:12px"></div>
+        </div>
+        <div id="sh-info" class="tab-content">
+          <div style="margin-top:12px;font-size:0.88rem;display:flex;flex-direction:column;gap:10px">
+            <div>📍 <strong>Cím:</strong> Budapest, XIV. kerület</div>
+            <div>🕐 <strong>Nyitvatartás:</strong> H-P: 9:00–18:00</div>
+            <div>📞 <strong>Telefon:</strong> +36 30 123 4567</div>
+            <div>🌐 <strong>Web:</strong> <a href="#">techstorepro.hu</a></div>
+            <div>📧 <strong>E-mail:</strong> info@techstorepro.hu</div>
+            <div style="margin-top:8px;padding:12px;background:var(--surface2);border-radius:8px">Szaküzletként elektronikai cikkeket, okostelefonokat, laptopokat árusítunk garanciával. Minden termékünk eredeti, számlás.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOYALTY PROGRAM MODAL -->
+<div class="modal-overlay" id="loyaltyModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header"><h2>🏆 Hűségprogram</h2><button class="modal-close" onclick="closeModal('loyaltyModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:linear-gradient(135deg,#7b2d8b,#e85d04);border-radius:var(--radius);padding:20px;color:white;text-align:center;margin-bottom:20px">
+        <div style="font-size:2rem;margin-bottom:6px">🥈 Ezüst szint</div>
+        <div style="font-size:2.5rem;font-weight:900" id="loyaltyPoints">1,250</div>
+        <div style="opacity:0.85">PiacTér pont</div>
+        <div style="margin-top:10px;background:rgba(255,255,255,0.2);border-radius:20px;padding:4px 0">
+          <div style="background:white;border-radius:20px;height:8px;width:62%"></div>
+        </div>
+        <div style="font-size:0.78rem;margin-top:6px;opacity:0.85">750 pont a következő szintig (Arany)</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px">
+        <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:8px">
+          <div style="font-size:1.4rem">🥉</div><div style="font-size:0.72rem;margin-top:4px;font-weight:700">Bronz</div><div style="font-size:0.68rem;color:var(--text2)">0–499 pt</div>
+        </div>
+        <div style="text-align:center;padding:10px;background:linear-gradient(135deg,#e0e0e0,#bdbdbd);border-radius:8px;border:2px solid var(--primary)">
+          <div style="font-size:1.4rem">🥈</div><div style="font-size:0.72rem;margin-top:4px;font-weight:700">Ezüst ✓</div><div style="font-size:0.68rem">500–1999 pt</div>
+        </div>
+        <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:8px">
+          <div style="font-size:1.4rem">🥇</div><div style="font-size:0.72rem;margin-top:4px;font-weight:700">Arany</div><div style="font-size:0.68rem;color:var(--text2)">2000–4999 pt</div>
+        </div>
+        <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:8px">
+          <div style="font-size:1.4rem">💎</div><div style="font-size:0.72rem;margin-top:4px;font-weight:700">Platina</div><div style="font-size:0.68rem;color:var(--text2)">5000+ pt</div>
+        </div>
+      </div>
+      <h4 style="margin-bottom:12px">Pontgyűjtési lehetőségek</h4>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:0.85rem">
+        <div style="display:flex;justify-content:space-between;padding:10px;background:var(--surface2);border-radius:8px"><span>✅ Hirdetés feladása</span><span style="font-weight:700;color:var(--primary)">+10 pt</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px;background:var(--surface2);border-radius:8px"><span>💳 Vásárlás</span><span style="font-weight:700;color:var(--primary)">+50 pt / 5000 Ft</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px;background:var(--surface2);border-radius:8px"><span>⭐ Értékelés írása</span><span style="font-weight:700;color:var(--primary)">+5 pt</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px;background:var(--surface2);border-radius:8px"><span>👥 Barát meghívása</span><span style="font-weight:700;color:var(--primary)">+100 pt</span></div>
+        <div style="display:flex;justify-content:space-between;padding:10px;background:var(--surface2);border-radius:8px"><span>📸 Profilkép feltöltése</span><span style="font-weight:700;color:var(--primary)">+20 pt</span></div>
+      </div>
+      <h4 style="margin:16px 0 12px">Jutalmak</h4>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:0.85rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border-radius:8px">
+          <span>🎁 500 Ft kedvezmény kiemelésre</span>
+          <button class="btn btn-primary" style="font-size:0.78rem;padding:4px 10px" onclick="redeemPoints(200)">200 pt</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border-radius:8px">
+          <span>⭐ 7 napos ingyenes kiemelés</span>
+          <button class="btn btn-primary" style="font-size:0.78rem;padding:4px 10px" onclick="redeemPoints(500)">500 pt</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border-radius:8px">
+          <span>💎 1 hónapos prémium tagság</span>
+          <button class="btn btn-premium" style="font-size:0.78rem;padding:4px 10px" onclick="redeemPoints(1000)">1000 pt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AFFILIATE MODAL -->
+<div class="modal-overlay" id="affiliateModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header"><h2>🤝 Affiliate / Referral Program</h2><button class="modal-close" onclick="closeModal('affiliateModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:var(--radius);padding:20px;color:white;text-align:center;margin-bottom:20px">
+        <div style="font-size:1.8rem;font-weight:900">Keress pénzt ajánlásokkal!</div>
+        <div style="font-size:2.5rem;font-weight:900;margin:10px 0">500 Ft</div>
+        <div style="opacity:0.9">minden sikeres ajánlás után</div>
+      </div>
+      <div class="form-group">
+        <label>Személyes referral linked</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" class="form-control" id="refLink" value="https://piacter.hu/?ref=KOVACSJ92" readonly>
+          <button class="btn btn-primary" onclick="copyRef()">📋</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;text-align:center">
+        <div style="padding:12px;background:var(--surface2);border-radius:8px"><div style="font-size:1.4rem;font-weight:900;color:var(--primary)">12</div><div style="font-size:0.75rem">Meghívott</div></div>
+        <div style="padding:12px;background:var(--surface2);border-radius:8px"><div style="font-size:1.4rem;font-weight:900;color:var(--primary)">7</div><div style="font-size:0.75rem">Regisztrált</div></div>
+        <div style="padding:12px;background:var(--surface2);border-radius:8px"><div style="font-size:1.4rem;font-weight:900;color:var(--primary)">3 500 Ft</div><div style="font-size:0.75rem">Kereset</div></div>
+      </div>
+      <h4 style="margin-bottom:10px">Hogyan működik?</h4>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:0.85rem">
+        <div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--surface2);border-radius:8px"><span style="font-size:1.5rem">1️⃣</span><span>Oszd meg a személyes linkedet barátaiddal</span></div>
+        <div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--surface2);border-radius:8px"><span style="font-size:1.5rem">2️⃣</span><span>Barátod regisztrál és felagy egy hirdetést</span></div>
+        <div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--surface2);border-radius:8px"><span style="font-size:1.5rem">3️⃣</span><span>Te kapsz 500 Ft-ot, ő 200 Ft kedvezményt!</span></div>
+      </div>
+      <button class="btn btn-primary btn-lg" style="width:100%;margin-top:16px" onclick="copyRef()">📤 Link megosztása most</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI PRICE SUGGESTION MODAL -->
+<div class="modal-overlay" id="aiPriceModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header"><h2>🤖 AI Árajánló</h2><button class="modal-close" onclick="closeModal('aiPriceModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Mit szeretnél eladni?</label>
+        <input type="text" class="form-control" id="aiPriceInput" placeholder="pl. iPhone 13 Pro 128GB">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Állapot</label>
+          <select class="form-control" id="aiCondition"><option>Új</option><option>Újszerű</option><option>Jó állapotú</option><option>Használt</option></select>
+        </div>
+        <div class="form-group">
+          <label>Kategória</label>
+          <select class="form-control" id="aiCat"><option>Elektronika</option><option>Ruha</option><option>Jármű</option><option>Sport</option><option>Egyéb</option></select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-lg" style="width:100%" onclick="getAIPrice()">🤖 Árajánlat kérése</button>
+      <div id="aiResult" style="display:none;margin-top:20px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- GALLERY MODAL -->
+<div class="gallery-modal" id="galleryModal">
+  <div class="gallery-inner">
+    <button class="gallery-close" onclick="closeGallery()">✕</button>
+    <button class="gallery-prev" onclick="galleryNav(-1)">‹</button>
+    <div class="gallery-img-wrap" id="galleryImg"></div>
+    <button class="gallery-next" onclick="galleryNav(1)">›</button>
+    <div class="gallery-counter" id="galleryCtr"></div>
+    <div class="gallery-dots" id="galleryDots"></div>
+    <div class="gallery-thumbnails" id="galleryThumbs"></div>
+  </div>
+</div>
+
+<!-- ZOOM OVERLAY -->
+<div class="zoom-overlay" id="zoomOverlay" onclick="closeZoom()">
+  <div class="zoom-img" id="zoomImg"></div>
+</div>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- OFFLINE BAR -->
+<div class="offline-bar" id="offlineBar">📵 Nincs internetkapcsolat – offline módban böngészel</div>
+
+<!-- PWA INSTALL BANNER -->
+<div class="pwa-banner" id="pwaBanner">
+  <div class="pwa-banner-icon">📱</div>
+  <div class="pwa-banner-text">
+    <strong>Telepítsd a PiacTér appot!</strong>
+    Gyorsabb, kényelmesebb – mint egy natív app!
+  </div>
+  <button class="btn btn-primary" style="font-size:0.82rem;white-space:nowrap" onclick="installPWA()">Telepítés</button>
+  <button class="btn btn-secondary" style="font-size:0.82rem" onclick="dismissPWA()">✕</button>
+</div>
+
+<!-- MOBILE NAV DRAWER -->
+<div class="mobile-nav" id="mobileNav" onclick="closeMobileNav(event)">
+  <div class="mobile-nav-inner">
+    <div class="mobile-nav-header">
+      <div class="logo">Piac<span style="color:var(--accent)">Tér</span></div>
+      <div style="font-size:0.82rem;opacity:0.85;margin-top:4px">Magyarország legjobb piactere</div>
+    </div>
+    <div class="mobile-nav-section">Fiók</div>
+    <button class="mobile-nav-item" onclick="showModal('loginModal');closeMobileNavDirect()"><span class="nav-icon">🔐</span>Bejelentkezés</button>
+    <button class="mobile-nav-item" onclick="showModal('registerModal');closeMobileNavDirect()"><span class="nav-icon">📝</span>Regisztráció</button>
+    <button class="mobile-nav-item" onclick="showPage('dashboard');closeMobileNavDirect()"><span class="nav-icon">📊</span>Irányítópult</button>
+    <button class="mobile-nav-item" onclick="showModal('profileModal');closeMobileNavDirect()"><span class="nav-icon">👤</span>Profil</button>
+    <div class="mobile-nav-section">Kategóriák</div>
+    <button class="mobile-nav-item" onclick="filterCat('Elektronika');closeMobileNavDirect()"><span class="nav-icon">📱</span>Elektronika</button>
+    <button class="mobile-nav-item" onclick="filterCat('Ruha');closeMobileNavDirect()"><span class="nav-icon">👗</span>Ruha & Divat</button>
+    <button class="mobile-nav-item" onclick="filterCat('Jármű');closeMobileNavDirect()"><span class="nav-icon">🚗</span>Járművek</button>
+    <button class="mobile-nav-item" onclick="filterCat('Ingatlan');closeMobileNavDirect()"><span class="nav-icon">🏠</span>Ingatlan</button>
+    <button class="mobile-nav-item" onclick="filterCat('Sport');closeMobileNavDirect()"><span class="nav-icon">⚽</span>Sport & Szabadidő</button>
+    <button class="mobile-nav-item" onclick="filterCat('Ház');closeMobileNavDirect()"><span class="nav-icon">🛋</span>Ház & Kert</button>
+    <button class="mobile-nav-item" onclick="filterCat('Könyv');closeMobileNavDirect()"><span class="nav-icon">📚</span>Könyvek</button>
+    <button class="mobile-nav-item" onclick="filterCat('Gyerek');closeMobileNavDirect()"><span class="nav-icon">🧸</span>Gyerek</button>
+    <button class="mobile-nav-item" onclick="filterCat('Állatok');closeMobileNavDirect()"><span class="nav-icon">🐾</span>Állatoknak</button>
+    <div class="mobile-nav-section">Funkciók</div>
+    <button class="mobile-nav-item" onclick="openAuction();closeMobileNavDirect()"><span class="nav-icon">🔨</span>Aukciók</button>
+    <button class="mobile-nav-item" onclick="showModal('boostModal');closeMobileNavDirect()"><span class="nav-icon">⭐</span>Prémium kiemelés</button>
+    <button class="mobile-nav-item" onclick="showModal('loyaltyModal');closeMobileNavDirect()"><span class="nav-icon">🏆</span>Hűségprogram</button>
+    <button class="mobile-nav-item" onclick="showModal('affiliateModal');closeMobileNavDirect()"><span class="nav-icon">🤝</span>Affiliate</button>
+    <button class="mobile-nav-item" onclick="showModal('aiPriceModal');closeMobileNavDirect()"><span class="nav-icon">🤖</span>AI Árajánló</button>
+    <button class="mobile-nav-item" onclick="showModal('buyerProtModal');closeMobileNavDirect()"><span class="nav-icon">🛡️</span>Vásárló-védelem</button>
+    <button class="mobile-nav-item" onclick="showModal('contactModal');closeMobileNavDirect()"><span class="nav-icon">📧</span>Kapcsolat</button>
+    <div class="mobile-nav-section">Megjelenés</div>
+    <button class="mobile-nav-item" onclick="toggleTheme()"><span class="nav-icon" id="mobileThemeIcon">🌙</span><span id="mobileThemeLabel">Sötét mód</span></button>
+    <button class="mobile-nav-item" onclick="setLang('hu');closeMobileNavDirect()"><span class="nav-icon">🇭🇺</span>Magyar</button>
+    <button class="mobile-nav-item" onclick="setLang('en');closeMobileNavDirect()"><span class="nav-icon">🇬🇧</span>English</button>
+    <div style="padding:16px;margin-top:auto;border-top:1px solid var(--border)">
+      <button class="btn btn-primary btn-lg" style="width:100%" onclick="showModal('newListingModal');closeMobileNavDirect()">➕ Hirdetés feladása</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bottom-nav-btn active" id="bnHome" onclick="showPage('home');setActiveBottomNav('bnHome')"><span class="bn-icon">🏠</span>Főoldal</button>
+    <button class="bottom-nav-btn" id="bnSearch" onclick="document.getElementById('searchInput').focus();setActiveBottomNav('bnSearch')"><span class="bn-icon">🔍</span>Keresés</button>
+    <button class="bottom-nav-btn post-btn" onclick="showModal('newListingModal')"><span class="bn-icon">➕</span>Hirdetés</button>
+    <button class="bottom-nav-btn" id="bnMsg" onclick="showModal('messagesModal');setActiveBottomNav('bnMsg')"><span class="bn-icon">💬</span>Üzenetek</button>
+    <button class="bottom-nav-btn" id="bnProfile" onclick="showModal('profileModal');setActiveBottomNav('bnProfile')"><span class="bn-icon">👤</span>Profil</button>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="showModal('newListingModal')" title="Hirdetés feladása">➕</button>
+
+<!-- MOBILE FILTER BAR (injected into content area) -->
+<div class="gdpr-banner" id="gdprBanner">
+  <p>🍪 <strong>Sütiket használunk</strong> az oldal működéséhez, analitikához és személyre szabott élményhez. Az "Elfogadás" gombra kattintva hozzájárulsz a <a href="#" onclick="showModal('gdprModal')">GDPR/Sütikezelési irányelvekhez</a>. Az ÁSZF-et <a href="#" onclick="showModal('aszfModal')">itt</a> olvashatod el.</p>
+  <div class="gdpr-btns">
+    <button class="btn-settings" onclick="showModal('gdprModal')">Beállítások</button>
+    <button class="btn-accept" onclick="acceptGDPR()">Elfogadom</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-top">
+    <div class="logo">Piac<span>Tér</span></div>
+    <div class="search-bar">
+      <div class="search-wrapper">
+        <input type="text" id="searchInput" placeholder="Mit keresel?" oninput="liveSearch(this.value);showAutocomplete(this.value)" onblur="setTimeout(()=>hideAutocomplete(),200)" onfocus="showAutocomplete(this.value)">
+        <div class="autocomplete-box" id="autocompleteBox" style="display:none"></div>
+      </div>
+      <select id="searchCat">
+        <option value="">Összes kategória</option>
+        <option>Elektronika</option><option>Ruha & Divat</option><option>Járművek</option>
+        <option>Ingatlan</option><option>Sport & Szabadidő</option><option>Ház & Kert</option>
+        <option>Könyvek & Játékok</option>
+      </select>
+      <button onclick="doSearch()">🔍</button>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline-white notif-btn tooltip" data-tip="Értesítések" onclick="showModal('notifModal')">🔔<span class="notif-dot"></span></button>
+      <button class="btn btn-outline-white notif-btn tooltip" data-tip="Üzenetek" onclick="showModal('messagesModal')">💬<span class="notif-dot"></span></button>
+      <button class="btn btn-outline-white notif-btn tooltip" data-tip="Kedvencek" onclick="openFavorites()">❤️</button>
+      <button class="btn btn-outline-white tooltip" data-tip="Admin" onclick="showModal('adminModal')">🔧</button>
+      <div class="dropdown">
+        <button class="btn btn-outline-white" onclick="toggleDropdown('langDD')">🌐 <span id="langLabel">HU</span> ▾</button>
+        <div class="dropdown-menu" id="langDD">
+          <button class="dropdown-item" onclick="setLang('hu')">🇭🇺 Magyar</button>
+          <button class="dropdown-item" onclick="setLang('en')">🇬🇧 English</button>
+        </div>
+      </div>
+      <button class="btn btn-outline-white" onclick="toggleTheme()" id="themeBtn">🌙</button>
+      <div class="dropdown">
+        <button class="btn btn-white" onclick="toggleDropdown('userDD')">👤 ▾</button>
+        <div class="dropdown-menu" id="userDD">
+          <button class="dropdown-item" onclick="showModal('loginModal')">🔐 Bejelentkezés</button>
+          <button class="dropdown-item" onclick="showModal('registerModal')">📝 Regisztráció</button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" onclick="showPage('dashboard')">📊 Irányítópult</button>
+          <button class="dropdown-item" onclick="showModal('profileModal')">👤 Profil</button>
+          <button class="dropdown-item" onclick="showPage('myListings')">📋 Hirdetéseim</button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" style="color:var(--danger)">🚪 Kilépés</button>
+        </div>
+      </div>
+      <button class="btn btn-white" style="font-weight:900;background:var(--accent);color:#333" onclick="showModal('newListingModal')">➕ Hirdetés</button>
+      <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileNav()"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <ul>
+      <li><a href="#" onclick="filterCat('all')">🏠 Főoldal</a></li>
+      <li><a href="#" onclick="filterCat('Elektronika')">📱 Elektronika</a></li>
+      <li><a href="#" onclick="filterCat('Ruha')">👗 Divat</a></li>
+      <li><a href="#" onclick="filterCat('Jármű')">🚗 Járművek</a></li>
+      <li><a href="#" onclick="filterCat('Ingatlan')">🏠 Ingatlan</a></li>
+      <li><a href="#" onclick="filterCat('Sport')">⚽ Sport</a></li>
+      <li><a href="#" onclick="filterCat('Ház')">🛋 Ház & Kert</a></li>
+      <li><a href="#" onclick="filterCat('Könyv')">📚 Könyvek</a></li>
+      <li><a href="#" onclick="filterCat('Állatok')">🐾 Állatoknak</a></li>
+      <li><a href="#" onclick="filterCat('Gyerek')">🧸 Gyerek</a></li>
+      <li><a href="#" onclick="filterCat('Munka')">💼 Munka</a></li>
+      <li><a href="#" onclick="showModal('loyaltyModal')">🏆 Hűségprogram</a></li>
+      <li><a href="#" onclick="showModal('affiliateModal')">🤝 Affiliate</a></li>
+      <li><a href="#" onclick="showModal('aiPriceModal')">🤖 AI Árajánló</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="mainContent">
+  <!-- HOME PAGE -->
+  <div id="page-home" class="page active">
+    <!-- HERO -->
+    <div class="hero" style="margin-bottom:20px">
+      <h1 id="heroTitle">🛍️ Magyarország legjobb piactere</h1>
+      <p id="heroDesc">Millió hirdetés, ingyenes feladás, biztonságos fizetés. Adj el, vegyél, cserélj!</p>
+      <div class="hero-btns">
+        <button class="btn btn-white btn-lg" onclick="showModal('newListingModal')">➕ Hirdetés feladása</button>
+        <button class="btn btn-outline-white btn-lg" onclick="doSearch()">🔍 Böngészés</button>
+        <button class="btn btn-white btn-lg" style="background:var(--accent);color:#333" onclick="showModal('howItWorksModal')">❓ Hogyan működik?</button>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-bar" style="margin-bottom:20px">
+      <div class="stat-card"><div class="val" id="statListings">1,247,832</div><div class="lbl" data-hu="Aktív hirdetés" data-en="Active listings">Aktív hirdetés</div></div>
+      <div class="stat-card"><div class="val" id="statUsers">389,041</div><div class="lbl" data-hu="Regisztrált felhasználó" data-en="Registered users">Regisztrált felhasználó</div></div>
+      <div class="stat-card"><div class="val" id="statSold">4,891,204</div><div class="lbl" data-hu="Sikeres eladás" data-en="Successful sales">Sikeres eladás</div></div>
+      <div class="stat-card"><div class="val">4.8 ⭐</div><div class="lbl" data-hu="Átlagos értékelés" data-en="Average rating">Átlagos értékelés</div></div>
+      <div class="stat-card"><div class="val">0 Ft</div><div class="lbl" data-hu="Feladás díja" data-en="Listing fee">Feladás díja</div></div>
+    </div>
+
+    <div class="layout-cols">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <!-- CATEGORIES -->
+        <div class="card">
+          <div class="card-header">📂 <span data-hu="Kategóriák" data-en="Categories">Kategóriák</span></div>
+          <div class="card-body" style="padding:0">
+            <ul class="category-tree" id="catTree"></ul>
+          </div>
+        </div>
+        <!-- FILTERS -->
+        <div class="card">
+          <div class="card-header">🎯 <span data-hu="Szűrők" data-en="Filters">Szűrők</span></div>
+          <div class="card-body">
+            <div class="filter-group">
+              <label data-hu="Ár (Ft)" data-en="Price (HUF)">Ár (Ft)</label>
+              <div class="price-range">
+                <input type="number" id="priceMin" placeholder="Min" oninput="applyFilters()">
+                <span>–</span>
+                <input type="number" id="priceMax" placeholder="Max" oninput="applyFilters()">
+              </div>
+            </div>
+            <div class="filter-group">
+              <label data-hu="Helyszín" data-en="Location">Helyszín</label>
+              <input type="text" id="filterLoc" class="form-control" placeholder="pl. Budapest" oninput="applyFilters()">
+            </div>
+            <div class="filter-group">
+              <label data-hu="Állapot" data-en="Condition">Állapot</label>
+              <ul class="check-list">
+                <li><input type="checkbox" onclick="applyFilters()"><label>Új</label></li>
+                <li><input type="checkbox" onclick="applyFilters()"><label>Újszerű</label></li>
+                <li><input type="checkbox" onclick="applyFilters()"><label>Jó állapotú</label></li>
+                <li><input type="checkbox" onclick="applyFilters()"><label>Használt</label></li>
+              </ul>
+            </div>
+            <div class="filter-group">
+              <label data-hu="Szállítás" data-en="Shipping">Szállítás</label>
+              <ul class="check-list">
+                <li><input type="checkbox" onclick="applyFilters()"><label>Személyes átvétel</label></li>
+                <li><input type="checkbox" onclick="applyFilters()"><label>Postai szállítás</label></li>
+                <li><input type="checkbox" onclick="applyFilters()"><label>Futárszolgálat</label></li>
+                <li><input type="checkbox" onclick="applyFilters()"><label>Házhozszállítás</label></li>
+              </ul>
+            </div>
+            <div class="filter-group">
+              <label data-hu="Feladva" data-en="Posted">Feladva</label>
+              <select class="form-control" onchange="applyFilters()">
+                <option>Bármikor</option>
+                <option>Ma</option>
+                <option>Ezen a héten</option>
+                <option>Ezen a hónapban</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary" style="width:100%" onclick="resetFilters()">✖ Szűrők törlése</button>
+          </div>
+        </div>
+        <!-- SAVED SEARCHES -->
+        <div class="card">
+          <div class="card-header">🔔 Mentett keresések</div>
+          <div class="card-body">
+            <div style="font-size:0.85rem;color:var(--text2);margin-bottom:10px">Kapj értesítést, ha új hirdetés jelenik meg!</div>
+            <button class="btn btn-primary" style="width:100%;font-size:0.85rem" onclick="showModal('loginModal')">🔐 Bejelentkezés szükséges</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENT -->
+      <div class="content-area">
+        <div class="listings-header">
+          <h2 id="listingsTitle">🔥 Legújabb hirdetések</h2>
+          <div class="sort-bar">
+            <select id="sortSel" onchange="sortListings()">
+              <option value="newest">Legújabb</option>
+              <option value="oldest">Legrégebbi</option>
+              <option value="price-asc">Ár: növekvő</option>
+              <option value="price-desc">Ár: csökkenő</option>
+              <option value="popular">Legnézettebb</option>
+            </select>
+            <div class="view-toggle">
+              <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')">⊞</button>
+              <button class="view-btn" id="listViewBtn" onclick="setView('list')">☰</button>
+            </div>
+          </div>
+        </div>
+        <!-- MOBILE FILTER CHIPS -->
+        <div class="mobile-filter-bar" id="mobileFilterBar"></div>
+        <div class="listings-grid" id="listingsGrid"></div>
+        <!-- PAGINATION -->
+        <div style="display:flex;justify-content:center;gap:8px;padding:20px 0" id="pagination"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PAGE -->
+  <div id="page-dashboard" class="page" style="display:none">
+    <div class="breadcrumb">
+      <a href="#" onclick="showPage('home')">Főoldal</a>
+      <span class="breadcrumb-sep">›</span> Irányítópult
+    </div>
+    <h1 style="margin-bottom:20px">📊 Irányítópult</h1>
+    <div class="stats-bar" style="margin-bottom:24px">
+      <div class="stat-card"><div class="val">12</div><div class="lbl">Aktív hirdetés</div></div>
+      <div class="stat-card"><div class="val">847</div><div class="lbl">Összes megtekintés</div></div>
+      <div class="stat-card"><div class="val">23</div><div class="lbl">Üzenetek</div></div>
+      <div class="stat-card"><div class="val">4.9 ⭐</div><div class="lbl">Értékelésem</div></div>
+      <div class="stat-card"><div class="val">5</div><div class="lbl">Eladás ez héten</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+      <div class="card">
+        <div class="card-header">📈 Megtekintések (utolsó 7 nap)</div>
+        <div class="card-body">
+          <div class="chart-bar" id="viewsChart"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">💰 Bevételek (utolsó 7 nap)</div>
+        <div class="card-body">
+          <div class="chart-bar" id="revenueChart"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">📋 Legutóbbi hirdetések</div>
+      <div class="card-body">
+        <table style="width:100%;border-collapse:collapse;font-size:0.88rem">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border)">
+              <th style="padding:8px;text-align:left">Cím</th>
+              <th style="padding:8px;text-align:left">Ár</th>
+              <th style="padding:8px;text-align:left">Állapot</th>
+              <th style="padding:8px;text-align:left">Megtekintés</th>
+              <th style="padding:8px;text-align:left">Műveletek</th>
+            </tr>
+          </thead>
+          <tbody id="dashListings"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY LISTINGS PAGE -->
+  <div id="page-myListings" class="page" style="display:none">
+    <div class="breadcrumb">
+      <a href="#" onclick="showPage('home')">Főoldal</a>
+      <span class="breadcrumb-sep">›</span> Hirdetéseim
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h1>📋 Hirdetéseim</h1>
+      <button class="btn btn-primary" onclick="showModal('newListingModal')">➕ Új hirdetés</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('myListingsTab','tab-active')">Aktív (12)</button>
+      <button class="tab" onclick="switchTab('myListingsTab','tab-sold')">Eladott (47)</button>
+      <button class="tab" onclick="switchTab('myListingsTab','tab-draft')">Piszkozat (3)</button>
+      <button class="tab" onclick="switchTab('myListingsTab','tab-expired')">Lejárt (8)</button>
+    </div>
+    <div id="myListingsTab">
+      <div id="tab-active" class="tab-content active">
+        <div class="listings-grid" id="myActiveListings"></div>
+      </div>
+      <div id="tab-sold" class="tab-content">
+        <div style="text-align:center;padding:40px;color:var(--text2)">Az eladott hirdetések itt jelennek meg.</div>
+      </div>
+      <div id="tab-draft" class="tab-content">
+        <div style="text-align:center;padding:40px;color:var(--text2)">Piszkozatok.</div>
+      </div>
+      <div id="tab-expired" class="tab-content">
+        <div style="text-align:center;padding:40px;color:var(--text2)">Lejárt hirdetések.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ========== MODALS ========== -->
+
+<!-- NEW LISTING MODAL -->
+<div class="modal-overlay" id="newListingModal">
+  <div class="modal" style="max-width:750px">
+    <div class="modal-header">
+      <h2>➕ Hirdetés feladása</h2>
+      <button class="modal-close" onclick="closeModal('newListingModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('newListingTabs','nlt-basic')">Alapadatok</button>
+        <button class="tab" onclick="switchTab('newListingTabs','nlt-details')">Részletek</button>
+        <button class="tab" onclick="switchTab('newListingTabs','nlt-photos')">Fotók</button>
+        <button class="tab" onclick="switchTab('newListingTabs','nlt-boost')">Kiemelés</button>
+      </div>
+      <div id="newListingTabs">
+        <div id="nlt-basic" class="tab-content active">
+          <div class="form-group">
+            <label>Cím <span class="required">*</span></label>
+            <input type="text" class="form-control" id="nl-title" placeholder="pl. iPhone 14 Pro Max 256GB fekete">
+            <div class="form-hint">Legyen pontos és vonzó! Max. 80 karakter.</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Kategória <span class="required">*</span></label>
+              <select class="form-control" id="nl-cat" onchange="updateSubcats()">
+                <option value="">Válassz...</option>
+                <option>Elektronika</option>
+                <option>Ruha & Divat</option>
+                <option>Járművek</option>
+                <option>Ingatlan</option>
+                <option>Sport & Szabadidő</option>
+                <option>Ház & Kert</option>
+                <option>Könyvek & Játékok</option>
+                <option>Gyerek</option>
+                <option>Állatoknak</option>
+                <option>Munka & Szolgáltatás</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Alkategória</label>
+              <select class="form-control" id="nl-subcat">
+                <option>Előbb válassz kategóriát...</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ár (Ft) <span class="required">*</span></label>
+              <input type="number" class="form-control" id="nl-price" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label>Állapot <span class="required">*</span></label>
+              <select class="form-control" id="nl-condition">
+                <option>Új</option>
+                <option>Újszerű</option>
+                <option>Jó állapotú</option>
+                <option>Használt</option>
+                <option>Alkatrésznek</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label style="display:flex;gap:10px;align-items:center">
+              <input type="checkbox" id="nl-negotiable" accent-color="var(--primary)"> Alkuképes ár
+            </label>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Helyszín <span class="required">*</span></label>
+              <input type="text" class="form-control" id="nl-loc" placeholder="pl. Budapest XIV. kerület">
+            </div>
+            <div class="form-group">
+              <label>Irányítószám</label>
+              <input type="text" class="form-control" id="nl-zip" placeholder="pl. 1141" maxlength="4">
+            </div>
+          </div>
+        </div>
+        <div id="nlt-details" class="tab-content">
+          <div class="form-group">
+            <label>Leírás <span class="required">*</span></label>
+            <textarea class="form-control" id="nl-desc" rows="6" placeholder="Részletes leírás a termékről, állapotáról, esetleges hibáiról..."></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Szállítás</label>
+              <select class="form-control" id="nl-shipping">
+                <option>Személyes átvétel</option>
+                <option>Postai szállítás</option>
+                <option>Futárszolgálat</option>
+                <option>Mindkettő</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Szállítási díj (Ft)</label>
+              <input type="number" class="form-control" id="nl-shipcost" placeholder="0 = ingyenes">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Fizetési mód</label>
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.88rem"><input type="checkbox"> Készpénz</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.88rem"><input type="checkbox"> Banki átutalás</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.88rem"><input type="checkbox"> Barion</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.88rem"><input type="checkbox"> PayPal</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.88rem"><input type="checkbox"> Utánvét</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Cserét elfogadok</label>
+            <input type="text" class="form-control" placeholder="pl. laptop, okostelefon (hagyd üresen ha nem)">
+          </div>
+          <div class="form-group">
+            <label>Elérhetőség a hirdetésen</label>
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.88rem"><input type="checkbox" checked> Üzenet az oldalon</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.88rem"><input type="checkbox"> Telefonszám megjelenítése</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.88rem"><input type="checkbox"> E-mail megjelenítése</label>
+            </div>
+          </div>
+        </div>
+        <div id="nlt-photos" class="tab-content">
+          <div class="form-group">
+            <label>Fotók feltöltése (max. 20 kép)</label>
+            <div class="img-upload-area" id="uploadArea"
+              onclick="document.getElementById('fileInput').click()"
+              ondragover="event.preventDefault();this.classList.add('drag')"
+              ondragleave="this.classList.remove('drag')"
+              ondrop="handleDrop(event)">
+              <div class="upload-icon">📷</div>
+              <p><strong>Kattints ide</strong> vagy húzd ide a képeket</p>
+              <p style="font-size:0.78rem;margin-top:4px">JPG, PNG, WEBP – max. 5MB/kép</p>
+              <input type="file" id="fileInput" multiple accept="image/*" onchange="handleFiles(this.files)">
+            </div>
+            <div class="img-previews" id="imgPreviews"></div>
+            <div class="form-hint">Az első kép lesz a borítókép. Húzd át a sorrendet!</div>
+          </div>
+        </div>
+        <div id="nlt-boost" class="tab-content">
+          <p style="margin-bottom:16px;color:var(--text2);font-size:0.9rem">Emeld ki hirdetésedet, hogy több vevőt érj el!</p>
+          <div class="boost-plans">
+            <div class="boost-plan" onclick="selectBoost(this,'none')">
+              <div class="plan-name">Alap</div>
+              <div class="plan-price">Ingyenes</div>
+              <div class="plan-duration">30 napig</div>
+              <ul><li>Normál megjelenés</li><li>Alap keresési rang</li></ul>
+            </div>
+            <div class="boost-plan" onclick="selectBoost(this,'featured')">
+              <div class="plan-name">Kiemelt</div>
+              <div class="plan-price">990 Ft</div>
+              <div class="plan-duration">7 napra</div>
+              <ul><li>Arany keret</li><li>Kategória tetején</li><li>4× több látogató</li></ul>
+            </div>
+            <div class="boost-plan popular" onclick="selectBoost(this,'premium')">
+              <div class="popular-tag">⭐ Legnépszerűbb</div>
+              <div class="plan-name">Prémium</div>
+              <div class="plan-price">1 990 Ft</div>
+              <div class="plan-duration">14 napra</div>
+              <ul><li>Lila prémium keret</li><li>Főoldalon megjelenés</li><li>10× több látogató</li><li>Kiemelés e-mailben</li></ul>
+            </div>
+            <div class="boost-plan" onclick="selectBoost(this,'turbo')">
+              <div class="plan-name">Turbó</div>
+              <div class="plan-price">4 990 Ft</div>
+              <div class="plan-duration">30 napra</div>
+              <ul><li>Minden prémium előny</li><li>Hirdetés banner</li><li>25× több látogató</li><li>Kiemelt push értesítés</li></ul>
+            </div>
+          </div>
+          <div id="boostPaySection" style="display:none;margin-top:20px">
+            <h3 style="margin-bottom:14px">Fizetés</h3>
+            <div class="payment-options" id="boostPayOpts">
+              <div class="payment-option" onclick="selectPay(this,'barion')">
+                <div class="pay-icon">💳</div>
+                <div class="pay-name">Barion</div>
+                <div class="pay-desc">Bankkártya fizetés</div>
+              </div>
+              <div class="payment-option" onclick="selectPay(this,'paypal')">
+                <div class="pay-icon">🅿️</div>
+                <div class="pay-name">PayPal</div>
+                <div class="pay-desc">PayPal egyenleg</div>
+              </div>
+              <div class="payment-option" onclick="selectPay(this,'transfer')">
+                <div class="pay-icon">🏦</div>
+                <div class="pay-name">Banki átutalás</div>
+                <div class="pay-desc">Azonnali utalás</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('newListingModal')">Mégse</button>
+      <button class="btn btn-secondary" onclick="saveDraft()">💾 Piszkozat mentése</button>
+      <button class="btn btn-primary btn-lg" onclick="submitListing()">🚀 Hirdetés feladása</button>
+    </div>
+  </div>
+</div>
+
+<!-- LISTING DETAIL MODAL -->
+<div class="modal-overlay" id="listingDetailModal">
+  <div class="modal" style="max-width:850px">
+    <div class="modal-header">
+      <h2 id="detailTitle">Hirdetés részletei</h2>
+      <button class="modal-close" onclick="closeModal('listingDetailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="listingDetailBody"></div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h2>🔐 Bejelentkezés</h2>
+      <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>E-mail cím</label>
+        <input type="email" class="form-control" placeholder="pelda@email.hu">
+      </div>
+      <div class="form-group">
+        <label>Jelszó</label>
+        <input type="password" class="form-control" placeholder="••••••••">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:0.88rem"><input type="checkbox"> Emlékezz rám</label>
+        <a href="#" style="font-size:0.85rem">Elfelejtett jelszó?</a>
+      </div>
+      <button class="btn btn-primary btn-lg" style="width:100%" onclick="doLogin()">Bejelentkezés</button>
+      <div style="text-align:center;margin:16px 0;color:var(--text2);font-size:0.88rem">— vagy —</div>
+      <button class="btn btn-secondary btn-lg" style="width:100%;margin-bottom:8px">🇬 Google-lel</button>
+      <button class="btn btn-secondary btn-lg" style="width:100%">🔵 Facebookkal</button>
+      <div style="text-align:center;margin-top:16px;font-size:0.88rem">Még nincs fiókod? <a href="#" onclick="closeModal('loginModal');showModal('registerModal')">Regisztrálj!</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <h2>📝 Regisztráció</h2>
+      <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Keresztnév <span class="required">*</span></label>
+          <input type="text" class="form-control" placeholder="Kovács">
+        </div>
+        <div class="form-group">
+          <label>Vezetéknév <span class="required">*</span></label>
+          <input type="text" class="form-control" placeholder="János">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Felhasználónév <span class="required">*</span></label>
+        <input type="text" class="form-control" placeholder="kovacsj92">
+      </div>
+      <div class="form-group">
+        <label>E-mail cím <span class="required">*</span></label>
+        <input type="email" class="form-control" placeholder="pelda@email.hu">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Jelszó <span class="required">*</span></label>
+          <input type="password" class="form-control" placeholder="Min. 8 karakter">
+        </div>
+        <div class="form-group">
+          <label>Jelszó ismét <span class="required">*</span></label>
+          <input type="password" class="form-control" placeholder="••••••••">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Telefonszám</label>
+        <input type="tel" class="form-control" placeholder="+36 30 123 4567">
+      </div>
+      <div class="form-group">
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:0.85rem;font-weight:400">
+          <input type="checkbox" style="margin-top:2px"> Elfogadom az <a href="#" onclick="showModal('aszfModal')">Általános Szerződési Feltételeket</a> és az <a href="#" onclick="showModal('gdprModal')">Adatvédelmi Tájékoztatót</a>. <span class="required">*</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:0.85rem;font-weight:400">
+          <input type="checkbox"> Hozzájárulok hírlevél küldéséhez (opcionális)
+        </label>
+      </div>
+      <button class="btn btn-primary btn-lg" style="width:100%" onclick="doRegister()">Regisztráció</button>
+    </div>
+  </div>
+</div>
+
+<!-- MESSAGES MODAL -->
+<div class="modal-overlay" id="messagesModal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h2>💬 Üzenetek</h2>
+      <button class="modal-close" onclick="closeModal('messagesModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:220px 1fr;gap:0;height:450px;border:1px solid var(--border);border-radius:var(--radius)">
+        <div style="border-right:1px solid var(--border);overflow-y:auto">
+          <div style="padding:10px;font-size:0.8rem;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border)">BESZÉLGETÉSEK</div>
+          <div class="msg-list" id="msgList"></div>
+        </div>
+        <div style="display:flex;flex-direction:column">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:600;font-size:0.9rem" id="chatWith">Válassz egy beszélgetést</div>
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="quick-replies">
+            <button class="quick-reply" onclick="quickReply('Elérhető még?')">Elérhető még?</button>
+            <button class="quick-reply" onclick="quickReply('Mi az alsó ár?')">Mi az alsó ár?</button>
+            <button class="quick-reply" onclick="quickReply('Személyes átvétel?')">Személyes átvétel?</button>
+            <button class="quick-reply" onclick="quickReply('Mikor lehet megtekinteni?')">Mikor lehet megtekinteni?</button>
+            <button class="quick-reply" onclick="quickReply('Megveszem!')">Megveszem! 🛒</button>
+          </div>
+          <div class="chat-input-bar">
+            <input type="text" id="chatInput" placeholder="Írj üzenetet..." onkeypress="if(event.key==='Enter')sendMsg()">
+            <button class="btn btn-primary" onclick="sendMsg()">Küldés</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS MODAL -->
+<div class="modal-overlay" id="notifModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h2>🔔 Értesítések</h2>
+      <button class="modal-close" onclick="closeModal('notifModal')">✕</button>
+    </div>
+    <div class="modal-body" id="notifList"></div>
+  </div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h2>⭐ Eladó értékelése</h2>
+      <button class="modal-close" onclick="closeModal('reviewModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Értékelés</label>
+        <div class="stars-input" id="starsInput">
+          <span class="star" onclick="setStar(1)">★</span>
+          <span class="star" onclick="setStar(2)">★</span>
+          <span class="star" onclick="setStar(3)">★</span>
+          <span class="star" onclick="setStar(4)">★</span>
+          <span class="star" onclick="setStar(5)">★</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Értékelés típusa</label>
+        <div style="display:flex;gap:10px">
+          <label style="display:flex;align-items:center;gap:6px"><input type="radio" name="revType" value="buyer"> Vevőként vásároltam</label>
+          <label style="display:flex;align-items:center;gap:6px"><input type="radio" name="revType" value="seller"> Eladóként adtam el</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Szöveges értékelés</label>
+        <textarea class="form-control" rows="4" placeholder="Írd le a tapasztalatod..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('reviewModal')">Mégse</button>
+      <button class="btn btn-primary" onclick="submitReview()">Értékelés beküldése</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <h2>💳 Fizetés</h2>
+      <button class="modal-close" onclick="closeModal('paymentModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:16px;margin-bottom:20px">
+        <div class="stat-row"><span class="lbl">Termék</span><span class="val" id="payItem">–</span></div>
+        <div class="stat-row"><span class="lbl">Szállítás</span><span class="val">990 Ft</span></div>
+        <div class="stat-row" style="border-top:1px solid var(--border);padding-top:8px;margin-top:8px"><span class="lbl" style="font-weight:700">Összesen</span><span class="val" style="font-size:1.1rem;color:var(--primary)" id="payTotal">–</span></div>
+      </div>
+      <h3 style="margin-bottom:14px;font-size:1rem">Fizetési mód választása</h3>
+      <div class="payment-options">
+        <div class="payment-option" onclick="selectPay(this,'barion')">
+          <div class="pay-icon">💳</div>
+          <div class="pay-name">Barion</div>
+          <div class="pay-desc">Bankkártya / azonnali</div>
+        </div>
+        <div class="payment-option" onclick="selectPay(this,'paypal')">
+          <div class="pay-icon">🅿️</div>
+          <div class="pay-name">PayPal</div>
+          <div class="pay-desc">PayPal egyenleg</div>
+        </div>
+        <div class="payment-option" onclick="selectPay(this,'transfer')">
+          <div class="pay-icon">🏦</div>
+          <div class="pay-name">Banki átutalás</div>
+          <div class="pay-desc">Azonnali banki</div>
+        </div>
+        <div class="payment-option" onclick="selectPay(this,'cash')">
+          <div class="pay-icon">💵</div>
+          <div class="pay-name">Készpénz</div>
+          <div class="pay-desc">Személyes átvételkor</div>
+        </div>
+      </div>
+      <div style="font-size:0.78rem;color:var(--text2);margin-top:12px">🔒 A fizetés biztonságos, SSL titkosított kapcsolaton zajlik. A vásárlás feltételeit az <a href="#" onclick="showModal('aszfModal')">ÁSZF</a> tartalmazza.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('paymentModal')">Mégse</button>
+      <button class="btn btn-primary btn-lg" onclick="processPayment()">🔒 Fizetés most</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOST MODAL -->
+<div class="modal-overlay" id="boostModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <h2>⭐ Hirdetés kiemelése</h2>
+      <button class="modal-close" onclick="closeModal('boostModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text2);margin-bottom:20px">Emeld ki hirdetésedet és érj el akár 25× több látogatót!</p>
+      <div class="boost-plans">
+        <div class="boost-plan" onclick="selectBoost(this,'featured')">
+          <div class="plan-name">Kiemelt</div>
+          <div class="plan-price">990 Ft</div>
+          <div class="plan-duration">7 napra</div>
+          <ul><li>Arany keret</li><li>Kategória tetején</li></ul>
+        </div>
+        <div class="boost-plan popular" onclick="selectBoost(this,'premium')">
+          <div class="popular-tag">⭐ Legjobb</div>
+          <div class="plan-name">Prémium</div>
+          <div class="plan-price">1 990 Ft</div>
+          <div class="plan-duration">14 napra</div>
+          <ul><li>Lila prémium keret</li><li>Főoldali megjelenés</li><li>E-mail kiemelés</li></ul>
+        </div>
+        <div class="boost-plan" onclick="selectBoost(this,'turbo')">
+          <div class="plan-name">Turbó</div>
+          <div class="plan-price">4 990 Ft</div>
+          <div class="plan-duration">30 napra</div>
+          <ul><li>Minden előny</li><li>Banner hirdetés</li><li>Push értesítő</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <h2>👤 Profil</h2>
+      <button class="modal-close" onclick="closeModal('profileModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="profile-header">
+        <div class="avatar-lg" id="profileAvatar">KJ</div>
+        <div style="font-size:1.2rem;font-weight:700" id="profileName">Kovács János</div>
+        <div style="opacity:0.85;font-size:0.88rem">@kovacsj92 · Tagság: 2022. március</div>
+        <div class="verified-badge">✓ Azonosított felhasználó</div>
+        <div class="profile-stats">
+          <div class="profile-stat"><div class="val">47</div><div class="lbl">Eladás</div></div>
+          <div class="profile-stat"><div class="val">4.9</div><div class="lbl">Értékelés</div></div>
+          <div class="profile-stat"><div class="val">12</div><div class="lbl">Aktív</div></div>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('profileTabs','pt-info')">Adataim</button>
+        <button class="tab" onclick="switchTab('profileTabs','pt-reviews')">Értékelések</button>
+        <button class="tab" onclick="switchTab('profileTabs','pt-stats')">Statisztika</button>
+        <button class="tab" onclick="switchTab('profileTabs','pt-settings')">Beállítások</button>
+      </div>
+      <div id="profileTabs">
+        <div id="pt-info" class="tab-content active">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Keresztnév</label>
+              <input type="text" class="form-control" value="János">
+            </div>
+            <div class="form-group">
+              <label>Vezetéknév</label>
+              <input type="text" class="form-control" value="Kovács">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" class="form-control" value="kovacs.janos@email.hu">
+          </div>
+          <div class="form-group">
+            <label>Telefonszám</label>
+            <input type="tel" class="form-control" value="+36 30 123 4567">
+          </div>
+          <div class="form-group">
+            <label>Helyszín</label>
+            <input type="text" class="form-control" value="Budapest">
+          </div>
+          <div class="form-group">
+            <label>Bemutatkozás</label>
+            <textarea class="form-control" rows="3" placeholder="Írj magadról..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="saveProfile()">Mentés</button>
+        </div>
+        <div id="pt-reviews" class="tab-content">
+          <div id="reviewsList"></div>
+          <button class="btn btn-outline-white" style="background:var(--primary);color:white;margin-top:12px" onclick="showModal('reviewModal')">+ Értékelés írása</button>
+        </div>
+        <div id="pt-stats" class="tab-content">
+          <div class="stats-bar" style="margin-bottom:16px">
+            <div class="stat-card"><div class="val">89%</div><div class="lbl">Válaszadási arány</div></div>
+            <div class="stat-card"><div class="val">2 óra</div><div class="lbl">Átl. válaszidő</div></div>
+            <div class="stat-card"><div class="val">98%</div><div class="lbl">Pozitív értékelés</div></div>
+          </div>
+          <div style="margin-bottom:12px">
+            <div class="stat-row"><span class="lbl">5 ★</span><div class="progress-bar" style="flex:1;margin:0 10px"><div class="progress-fill" style="width:85%"></div></div><span class="val">85%</span></div>
+            <div class="stat-row"><span class="lbl">4 ★</span><div class="progress-bar" style="flex:1;margin:0 10px"><div class="progress-fill" style="width:10%;background:var(--secondary)"></div></div><span class="val">10%</span></div>
+            <div class="stat-row"><span class="lbl">3 ★</span><div class="progress-bar" style="flex:1;margin:0 10px"><div class="progress-fill" style="width:3%;background:var(--accent)"></div></div><span class="val">3%</span></div>
+            <div class="stat-row"><span class="lbl">1-2 ★</span><div class="progress-bar" style="flex:1;margin:0 10px"><div class="progress-fill" style="width:2%;background:var(--danger)"></div></div><span class="val">2%</span></div>
+          </div>
+        </div>
+        <div id="pt-settings" class="tab-content">
+          <div class="form-group">
+            <label>E-mail értesítések</label>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <label style="display:flex;justify-content:space-between;align-items:center"><span>Új üzenet érkezett</span><input type="checkbox" checked></label>
+              <label style="display:flex;justify-content:space-between;align-items:center"><span>Hírlevél</span><input type="checkbox"></label>
+              <label style="display:flex;justify-content:space-between;align-items:center"><span>Mentett keresés egyezés</span><input type="checkbox" checked></label>
+              <label style="display:flex;justify-content:space-between;align-items:center"><span>Fizetés megerősítése</span><input type="checkbox" checked></label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Új jelszó</label>
+            <input type="password" class="form-control" placeholder="Hagyd üresen, ha nem változtatod">
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" onclick="saveProfile()">Beállítások mentése</button>
+            <button class="btn btn-danger" onclick="if(confirm('Biztosan törlöd a fiókodat?'))closeModal('profileModal')">Fiók törlése</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GDPR MODAL -->
+<div class="modal-overlay" id="gdprModal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h2>🍪 Adatvédelmi és Sütikezelési Tájékoztató</h2>
+      <button class="modal-close" onclick="closeModal('gdprModal')">✕</button>
+    </div>
+    <div class="modal-body" style="font-size:0.88rem;line-height:1.7">
+      <h3 style="margin-bottom:8px;color:var(--primary)">1. Adatkezelő</h3>
+      <p>PiacTér Kft. (székhely: [CÍM], cégjegyzékszám: [CÉGJEGYZÉKSZÁM], adószám: [ADÓSZÁM]). A vevő által megvásárlás után kitöltendő.</p>
+      <h3 style="margin:16px 0 8px;color:var(--primary)">2. Kezelt adatok és célok</h3>
+      <p>Az oldal az alábbi személyes adatokat kezeli: név, e-mail cím, telefonszám, lakcím, IP-cím, böngészési adatok. Az adatkezelés célja: regisztráció, hirdetések kezelése, fizetések feldolgozása, ügyfélszolgálat.</p>
+      <h3 style="margin:16px 0 8px;color:var(--primary)">3. Sütik (Cookies)</h3>
+      <p>Az oldal az alábbi sütiket alkalmazza:</p>
+      <ul style="margin-left:20px;margin-top:8px">
+        <li><strong>Szükséges sütik:</strong> Az oldal működéséhez elengedhetetlenek.</li>
+        <li><strong>Analitikai sütik:</strong> Google Analytics – látogatottsági adatok gyűjtésére.</li>
+        <li><strong>Preferencia sütik:</strong> Témaváltás, nyelv beállítások tárolása.</li>
+        <li><strong>Marketing sütik:</strong> Célzott hirdetések megjelenítéséhez (csak hozzájárulással).</li>
+      </ul>
+      <h3 style="margin:16px 0 8px;color:var(--primary)">4. Jogok</h3>
+      <p>Hozzáférési jog · Törlési jog · Helyesbítési jog · Adathordozhatóság · Tiltakozási jog</p>
+      <p style="margin-top:12px">Panasz: <strong>NAIH</strong> (naih.hu) · Adatvédelmi tisztviselő: [EMAIL]</p>
+      <div style="margin-top:20px">
+        <h4 style="margin-bottom:10px">Süti beállítások</h4>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <label style="display:flex;justify-content:space-between"><span>Szükséges sütik <small style="color:var(--text2)">(mindig aktív)</small></span><input type="checkbox" checked disabled></label>
+          <label style="display:flex;justify-content:space-between"><span>Analitikai sütik</span><input type="checkbox" id="analytCookie" checked></label>
+          <label style="display:flex;justify-content:space-between"><span>Marketing sütik</span><input type="checkbox" id="marketCookie"></label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('gdprModal')">Bezárás</button>
+      <button class="btn btn-primary" onclick="acceptGDPR();closeModal('gdprModal')">Elfogadás és mentés</button>
+    </div>
+  </div>
+</div>
+
+<!-- ÁSZF MODAL -->
+<div class="modal-overlay" id="aszfModal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h2>📄 Általános Szerződési Feltételek</h2>
+      <button class="modal-close" onclick="closeModal('aszfModal')">✕</button>
+    </div>
+    <div class="modal-body" style="font-size:0.88rem;line-height:1.8">
+      <p><strong>Hatályos:</strong> [DÁTUM] · <strong>Adatkezelő:</strong> PiacTér Kft.</p>
+      <h3 style="margin:14px 0 6px;color:var(--primary)">1. Az oldal használata</h3>
+      <p>A PiacTér.hu egy online piactér, ahol magánszemélyek és cégek adhatnak fel, vásárolhatnak meg hirdetéseket. Az oldal csupán közvetítő platformot biztosít, az adás-vétel közvetlenül a felek között zajlik.</p>
+      <h3 style="margin:14px 0 6px;color:var(--primary)">2. Regisztráció és fiók</h3>
+      <p>A regisztrációhoz valós adatokat kell megadni. Fiktív, megtévesztő adatokkal létrehozott fiókok törlésre kerülnek. Egy személy csak egy fiókot tarthat fenn.</p>
+      <h3 style="margin:14px 0 6px;color:var(--primary)">3. Hirdetések</h3>
+      <p>Az eladók felelősek a hirdetések tartalmáért, pontosságáért. Tilos hamis, félrevezető, tiltott árucikkeket hirdetni. Az oldal fenntartja a jogot hirdetések eltávolítására.</p>
+      <h3 style="margin:14px 0 6px;color:var(--primary)">4. Fizetés és díjak</h3>
+      <p>Alapszintű hirdetés feladása ingyenes. Kiemelési szolgáltatások fizetősek. A fizetési rendszerek (Barion, PayPal, banki átutalás) a vonatkozó szabályzatok szerint működnek.</p>
+      <h3 style="margin:14px 0 6px;color:var(--primary)">5. Felelősség kizárása</h3>
+      <p>A PiacTér Kft. nem vállal felelősséget a felhasználók között létrejött ügyletekért, azok sikerességéért vagy a hirdetések tartalmának valóságosságáért.</p>
+      <h3 style="margin:14px 0 6px;color:var(--primary)">6. Irányadó jog</h3>
+      <p>A jelen ÁSZF-re a magyar jog az irányadó. Jogvita esetén a Pesti Központi Kerületi Bíróság illetékes.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('aszfModal')">Bezárás</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS MODAL -->
+<div class="modal-overlay" id="howItWorksModal">
+  <div class="modal" style="max-width:550px">
+    <div class="modal-header">
+      <h2>❓ Hogyan működik?</h2>
+      <button class="modal-close" onclick="closeModal('howItWorksModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div style="display:flex;gap:16px;align-items:flex-start">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;flex-shrink:0">1</div>
+          <div><strong>Regisztrálj ingyen</strong><p style="font-size:0.88rem;color:var(--text2);margin-top:4px">Hozz létre fiókot néhány másodperc alatt. Csak egy e-mail cím kell!</p></div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:flex-start">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--secondary);color:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;flex-shrink:0">2</div>
+          <div><strong>Add fel hirdetésedet</strong><p style="font-size:0.88rem;color:var(--text2);margin-top:4px">Töltsd fel a fotókat, adj meg árat és leírást. Teljesen ingyen!</p></div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:flex-start">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--accent);color:#333;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;flex-shrink:0">3</div>
+          <div><strong>Kommunikálj a vevőkkel</strong><p style="font-size:0.88rem;color:var(--text2);margin-top:4px">Fogadj üzeneteket az oldalon, tárgyalj biztonságosan.</p></div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:flex-start">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--success);color:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;flex-shrink:0">4</div>
+          <div><strong>Adj el és értékelj</strong><p style="font-size:0.88rem;color:var(--text2);margin-top:4px">Fizess/fogadj fizetést biztonságosan, majd értékeld az ügyletet!</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary btn-lg" style="width:100%" onclick="closeModal('howItWorksModal');showModal('registerModal')">🚀 Regisztrálok most!</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- FAVORITES PAGE -->
+<div class="modal-overlay" id="favoritesModal">
+  <div class="modal" style="max-width:800px">
+    <div class="modal-header"><h2>❤️ Kedvenceim</h2><button class="modal-close" onclick="closeModal('favoritesModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="listings-grid" id="favGrid" style="min-height:100px"></div>
+      <div id="favEmpty" style="display:none;text-align:center;padding:40px;color:var(--text2)">Még nincsenek kedvenc hirdetéseid. Kattints a 🤍 ikonra!</div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT LISTING MODAL -->
+<div class="modal-overlay" id="editListingModal">
+  <div class="modal" style="max-width:650px">
+    <div class="modal-header"><h2>✏️ Hirdetés szerkesztése</h2><button class="modal-close" onclick="closeModal('editListingModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Cím</label><input type="text" class="form-control" id="edit-title"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Ár (Ft)</label><input type="number" class="form-control" id="edit-price"></div>
+        <div class="form-group"><label>Állapot</label>
+          <select class="form-control" id="edit-condition">
+            <option>Új</option><option>Újszerű</option><option>Jó állapotú</option><option>Használt</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Helyszín</label><input type="text" class="form-control" id="edit-loc"></div>
+      <div class="form-group"><label>Leírás</label><textarea class="form-control" id="edit-desc" rows="4"></textarea></div>
+      <div class="form-group">
+        <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="edit-negotiable"> Alkuképes</label>
+      </div>
+      <div class="form-group">
+        <label style="display:flex;gap:10px;align-items:center;color:var(--success);font-weight:700"><input type="checkbox" id="edit-sold"> ✅ Eladva jelölés</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('editListingModal')">Mégse</button>
+      <button class="btn btn-danger" onclick="deleteListing()">🗑 Törlés</button>
+      <button class="btn btn-primary" onclick="saveEditListing()">💾 Mentés</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal" style="max-width:450px">
+    <div class="modal-header"><h2>🚨 Hirdetés bejelentése</h2><button class="modal-close" onclick="closeModal('reportModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Bejelentés oka</label>
+        <select class="form-control" id="reportReason">
+          <option>Hamis / megtévesztő hirdetés</option>
+          <option>Tiltott termék</option>
+          <option>Spam / duplikált</option>
+          <option>Szerzői jogi sértés</option>
+          <option>Személyes adatok jogtalan kezelése</option>
+          <option>Egyéb visszaélés</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Részletek</label><textarea class="form-control" rows="3" placeholder="Írd le részletesen..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('reportModal')">Mégse</button>
+      <button class="btn btn-danger" onclick="submitReport()">🚨 Bejelentés küldése</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL MODAL -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal" style="max-width:900px">
+    <div class="modal-header"><h2>🔧 Admin Panel</h2><button class="modal-close" onclick="closeModal('adminModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('adminTabs','adm-listings')">Hirdetések</button>
+        <button class="tab" onclick="switchTab('adminTabs','adm-users')">Felhasználók</button>
+        <button class="tab" onclick="switchTab('adminTabs','adm-reports')">Bejelentések</button>
+        <button class="tab" onclick="switchTab('adminTabs','adm-stats')">Statisztika</button>
+      </div>
+      <div id="adminTabs">
+        <div id="adm-listings" class="tab-content active">
+          <div style="display:flex;gap:10px;margin-bottom:12px">
+            <input type="text" class="form-control" placeholder="Keresés hirdetések között..." style="max-width:300px">
+            <select class="form-control" style="max-width:160px"><option>Összes</option><option>Aktív</option><option>Tiltott</option><option>Prémium</option></select>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+            <thead><tr style="border-bottom:2px solid var(--border)">
+              <th style="padding:8px;text-align:left">ID</th>
+              <th style="padding:8px;text-align:left">Cím</th>
+              <th style="padding:8px;text-align:left">Eladó</th>
+              <th style="padding:8px;text-align:left">Ár</th>
+              <th style="padding:8px;text-align:left">Státusz</th>
+              <th style="padding:8px;text-align:left">Műveletek</th>
+            </tr></thead>
+            <tbody id="adminListingsTable"></tbody>
+          </table>
+        </div>
+        <div id="adm-users" class="tab-content">
+          <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+            <thead><tr style="border-bottom:2px solid var(--border)">
+              <th style="padding:8px;text-align:left">Felhasználó</th>
+              <th style="padding:8px;text-align:left">E-mail</th>
+              <th style="padding:8px;text-align:left">Hirdetések</th>
+              <th style="padding:8px;text-align:left">Értékelés</th>
+              <th style="padding:8px;text-align:left">Műveletek</th>
+            </tr></thead>
+            <tbody id="adminUsersTable"></tbody>
+          </table>
+        </div>
+        <div id="adm-reports" class="tab-content">
+          <div id="adminReports" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+        <div id="adm-stats" class="tab-content">
+          <div class="stats-bar">
+            <div class="stat-card"><div class="val">1,247,832</div><div class="lbl">Összes hirdetés</div></div>
+            <div class="stat-card"><div class="val">389,041</div><div class="lbl">Felhasználók</div></div>
+            <div class="stat-card"><div class="val">4,891,204</div><div class="lbl">Eladások</div></div>
+            <div class="stat-card"><div class="val">12,450,000 Ft</div><div class="lbl">Havi bevétel</div></div>
+          </div>
+          <div style="margin-top:16px;background:var(--surface2);border-radius:var(--radius);padding:16px">
+            <h4 style="margin-bottom:10px">Top kategóriák</h4>
+            <div id="adminCatStats"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUCTION MODAL -->
+<div class="modal-overlay" id="auctionModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header"><h2>🔨 Aukció – Licitálás</h2><button class="modal-close" onclick="closeModal('auctionModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:var(--surface2);border-radius:var(--radius);padding:16px;margin-bottom:16px;text-align:center">
+        <div style="font-size:0.88rem;color:var(--text2)">Jelenlegi legmagasabb licit</div>
+        <div style="font-size:2.5rem;font-weight:900;color:var(--primary)" id="auctionCurrentBid">45 000 Ft</div>
+        <div style="font-size:0.82rem;color:var(--text2)" id="auctionLeader">Legmagasabb licitáló: anonymus_99</div>
+        <div style="margin-top:10px;font-size:0.9rem">⏳ Lejár: <strong id="auctionTimer">23:14:07</strong></div>
+      </div>
+      <div id="auctionBidList" style="max-height:180px;overflow-y:auto;margin-bottom:16px"></div>
+      <div class="form-group">
+        <label>Saját licit (Ft) – minimum: <span id="minBid">46 000</span></label>
+        <input type="number" class="form-control" id="myBidInput" placeholder="Add meg a licited...">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" style="flex:1" onclick="autoBid()">🤖 Automata licit</button>
+        <button class="btn btn-primary btn-lg" style="flex:1" onclick="placeBid()">🔨 Licitálok!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT / FORMSPREE MODAL -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header"><h2>📧 Kapcsolat / Ügyfélszolgálat</h2><button class="modal-close" onclick="closeModal('contactModal')">✕</button></div>
+    <div class="modal-body">
+      <form id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" onsubmit="submitContact(event)">
+        <div class="form-group"><label>Neved <span class="required">*</span></label><input type="text" name="name" class="form-control" required placeholder="Kovács János"></div>
+        <div class="form-group"><label>E-mail <span class="required">*</span></label><input type="email" name="email" class="form-control" required placeholder="email@pelda.hu"></div>
+        <div class="form-group"><label>Tárgy</label>
+          <select name="subject" class="form-control">
+            <option>Általános kérdés</option><option>Fizetési probléma</option><option>Hirdetési probléma</option>
+            <option>Visszaélés bejelentése</option><option>Technikai hiba</option><option>Egyéb</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Üzenet <span class="required">*</span></label><textarea name="message" class="form-control" rows="5" required placeholder="Írd le a kérdésed vagy problémád..."></textarea></div>
+        <input type="hidden" name="_subject" value="PiacTér – Új üzenet az ügyfélszolgálatnak">
+        <input type="hidden" name="_language" value="hu">
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">📤 Üzenet küldése</button>
+        <p style="font-size:0.75rem;color:var(--text2);margin-top:10px;text-align:center">Általában 24 órán belül válaszolunk. A kapcsolatfelvétellel elfogadod az <a href="#" onclick="showModal('aszfModal')">ÁSZF</a>-et.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header"><h2>📤 Megosztás</h2><button class="modal-close" onclick="closeModal('shareModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <button class="btn" style="background:#1877f2;color:white;padding:12px" onclick="shareTo('facebook')">📘 Facebook</button>
+        <button class="btn" style="background:#25d366;color:white;padding:12px" onclick="shareTo('whatsapp')">💬 WhatsApp</button>
+        <button class="btn" style="background:#0088cc;color:white;padding:12px" onclick="shareTo('telegram')">✈️ Telegram</button>
+        <button class="btn" style="background:#e60023;color:white;padding:12px" onclick="shareTo('messenger')">💙 Messenger</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <input type="text" class="form-control" id="shareUrl" readonly style="font-size:0.82rem">
+        <button class="btn btn-primary" onclick="copyShareUrl()">📋 Másolás</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BUYER PROTECTION MODAL -->
+<div class="modal-overlay" id="buyerProtModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header"><h2>🛡️ Vásárló-védelmi Program</h2><button class="modal-close" onclick="closeModal('buyerProtModal')">✕</button></div>
+    <div class="modal-body" style="font-size:0.88rem;line-height:1.8">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:var(--surface2);border-radius:var(--radius);padding:16px">
+          <div style="font-size:1.3rem;margin-bottom:6px">🔒 Biztonságos fizetés</div>
+          <p>A PiacTér escrow rendszerén keresztüli fizetésnél az összeget csak akkor juttatjuk el az eladónak, ha megerősítetted az áru átvételét.</p>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--radius);padding:16px">
+          <div style="font-size:1.3rem;margin-bottom:6px">↩️ Visszatérítési garancia</div>
+          <p>Ha az áru nem egyezik a hirdetéssel, 14 napon belül teljes visszatérítést garantálunk. Vonatkozó jogszabály: 45/2014. (II. 26.) Korm. rendelet.</p>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--radius);padding:16px">
+          <div style="font-size:1.3rem;margin-bottom:6px">⭐ Értékelési rendszer</div>
+          <p>Minden eladót és vevőt értékelnek. Csak ellenőrzött, magas értékelésű eladóktól vásárolhatsz biztonságosan.</p>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--radius);padding:16px">
+          <div style="font-size:1.3rem;margin-bottom:6px">🆘 Vita kezelés</div>
+          <p>Ha probléma merül fel, 48 órán belül mediátorunk segít a vita rendezésében. Elérhetőség: <strong>vedelem@piacter.hu</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INVOICE MODAL -->
+<div class="modal-overlay" id="invoiceModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header"><h2>🧾 Számla / Bizonylat</h2><button class="modal-close" onclick="closeModal('invoiceModal')">✕</button></div>
+    <div class="modal-body" id="invoiceContent">
+      <div style="border:2px solid var(--border);border-radius:var(--radius);padding:24px;font-size:0.88rem">
+        <div style="display:flex;justify-content:space-between;margin-bottom:20px">
+          <div><div style="font-size:1.4rem;font-weight:900;color:var(--primary)">Piac<span style="color:var(--secondary)">Tér</span></div><div style="font-size:0.78rem;color:var(--text2)">PiacTér Kft. · [CÍM] · Adószám: [ADÓSZÁM]</div></div>
+          <div style="text-align:right"><div style="font-weight:700">SZÁMLA</div><div style="color:var(--text2)">#PT-2025-<span id="invNum">00001</span></div><div style="color:var(--text2)" id="invDate"></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <div><div style="font-weight:700;margin-bottom:6px">ELADÓ</div><div style="color:var(--text2)">Kovács János<br>kovacs@email.hu<br>Budapest</div></div>
+          <div><div style="font-weight:700;margin-bottom:6px">VEVŐ</div><div style="color:var(--text2)">[Vevő neve]<br>[Vevő email]<br>[Vevő cím]</div></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+          <thead><tr style="border-bottom:2px solid var(--border)"><th style="padding:8px;text-align:left">Termék</th><th style="padding:8px;text-align:right">Összeg</th></tr></thead>
+          <tbody id="invItems"></tbody>
+          <tfoot><tr style="border-top:2px solid var(--border)"><td style="padding:8px;font-weight:700">Végösszeg</td><td style="padding:8px;text-align:right;font-weight:900;color:var(--primary)" id="invTotal"></td></tr></tfoot>
+        </table>
+        <div style="font-size:0.75rem;color:var(--text2)">Fizetési mód: Online · Fizetési határidő: azonnal · Az ügylet résztvevői felelnek a valós adatok megadásáért.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('invoiceModal')">Bezárás</button>
+      <button class="btn btn-primary" onclick="printInvoice()">🖨️ Nyomtatás / PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>PiacTér</h4>
+      <ul>
+        <li><a href="#">Rólunk</a></li>
+        <li><a href="#">Sajtó</a></li>
+        <li><a href="#" onclick="showModal('loyaltyModal')">🏆 Hűségprogram</a></li>
+        <li><a href="#" onclick="showModal('affiliateModal')">🤝 Affiliate program</a></li>
+        <li><a href="#" onclick="showModal('aiPriceModal')">🤖 AI Árajánló</a></li>
+        <li><a href="#" onclick="openShop()">🏪 Bolt nyitása</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#" onclick="showModal('contactModal')">Kapcsolat</a></li>
+        <li><a href="#" onclick="showModal('buyerProtModal')">Vásárló-védelem</a></li>
+      </ul>
+      <div class="payment-logos" style="margin-top:16px">
+        <div class="pay-logo">BARION</div>
+        <div class="pay-logo" style="background:#003087;color:white">PayPal</div>
+        <div class="pay-logo">VISA</div>
+        <div class="pay-logo">MC</div>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Segítség</h4>
+      <ul>
+        <li><a href="#" onclick="showModal('howItWorksModal')">Hogyan működik?</a></li>
+        <li><a href="#">GYIK</a></li>
+        <li><a href="#">Hirdetés feladása</a></li>
+        <li><a href="#">Biztonságos vásárlás</a></li>
+        <li><a href="#">Ügyfélszolgálat</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Jogi</h4>
+      <ul>
+        <li><a href="#" onclick="showModal('aszfModal')">ÁSZF</a></li>
+        <li><a href="#" onclick="showModal('gdprModal')">Adatvédelem / GDPR</a></li>
+        <li><a href="#" onclick="showModal('gdprModal')">Sütikezelés</a></li>
+        <li><a href="#">Impresszum</a></li>
+        <li><a href="#">Panaszkezelés</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Követés</h4>
+      <ul>
+        <li><a href="#">📘 Facebook</a></li>
+        <li><a href="#">📸 Instagram</a></li>
+        <li><a href="#">🐦 Twitter/X</a></li>
+        <li><a href="#">💼 LinkedIn</a></li>
+        <li><a href="#">▶️ YouTube</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Mobilapp</h4>
+      <p style="font-size:0.85rem;color:#aaa;margin-bottom:12px">Töltsd le az alkalmazást!</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="background:#333;border:1px solid #555;border-radius:8px;padding:10px 16px;font-size:0.82rem;cursor:pointer">🍎 App Store</div>
+        <div style="background:#333;border:1px solid #555;border-radius:8px;padding:10px 16px;font-size:0.82rem;cursor:pointer">🤖 Google Play</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 PiacTér Kft. Minden jog fenntartva. · Az oldal SSL titkosítással védett. · 🇭🇺 Magyarországon fejlesztve</p>
+    <p style="margin-top:6px">🔒 Biztonságos fizetés · 📦 Vásárló-védelmi program · 📞 +36 1 234 5678 · 📧 info@piacter.hu</p>
+  </div>
+</footer>
+
+<script>
+// ========== DATA ==========
+const categories = {
+  "📱 Elektronika": ["Mobiltelefonok","Laptopok","Táblagépek","TV & Hangszórók","Fényképezőgépek","Számítógépek","Konzolok & Játékok","Kisháztartási gépek","Egyéb elektronika"],
+  "👗 Ruha & Divat": ["Női ruházat","Férfi ruházat","Gyerek ruha","Cipők","Táskák","Ékszerek","Sportruházat","Vintage & Retro"],
+  "🚗 Járművek": ["Személyautók","Motorkerékpárok","Kerékpárok","Haszonjárművek","Alkatrészek","Lakókocsik","Csónakok","Elektromos járművek"],
+  "🏠 Ingatlan": ["Eladó lakások","Kiadó lakások","Házak","Telkek","Irodák","Üzlethelyiségek","Garázs & Tároló","Nyaralók"],
+  "⚽ Sport & Szabadidő": ["Labdajátékok","Fitnesz","Kerékpározás","Vízisportok","Téli sportok","Kempingezés","Horgászat","Vadászat"],
+  "🛋 Ház & Kert": ["Bútorok","Konyhai eszközök","Háztartási gépek","Kert & Terasz","Szerszámok","Építőanyagok","Dekoráció","Világítás"],
+  "📚 Könyvek & Játékok": ["Könyvek","Folyóiratok","Zene & Filmek","Társasjátékok","Gyűjtők","Műalkotások","Hangszerek"],
+  "🧸 Gyerek": ["Játékok","Ruházat","Bútorok","Babakocsik","Iskolai felszerelés","Oktató játékok"],
+  "🐾 Állatoknak": ["Kutyafelszerelés","Macskák","Halak","Rágcsálók","Madarak","Állateledel","Állatfelvétel"],
+  "💼 Munka & Szolgáltatás": ["Munkalehetőségek","Szabadúszók","Szállítás","Takarítás","Javítás","Oktatás","IT szolgáltatások"]
+};
+
+const sampleListings = [
+  {id:1,title:"iPhone 14 Pro Max 256GB",price:280000,cat:"Elektronika",loc:"Budapest",date:"2 perce",img:"📱",condition:"Újszerű",seller:"TechSeller99",rating:4.9,views:1247,premium:true,negotiable:false},
+  {id:2,title:"Samsung QLED 65\" 4K Smart TV",price:189000,cat:"Elektronika",loc:"Debrecen",date:"15 perce",img:"📺",condition:"Jó állapotú",seller:"ElektroKing",rating:4.7,views:823,featured:true,negotiable:true},
+  {id:3,title:"Trek Madone SL 6 kerékpár",price:650000,cat:"Sport",loc:"Győr",date:"1 órája",img:"🚴",condition:"Újszerű",seller:"BikeHunter",rating:5.0,views:456,premium:false,negotiable:true},
+  {id:4,title:"Volkswagen Golf 7 1.6 TDI",price:4200000,cat:"Jármű",loc:"Pécs",date:"2 órája",img:"🚗",condition:"Használt",seller:"AutoPro_HU",rating:4.8,views:2341,featured:true,negotiable:true},
+  {id:5,title:"Nike Air Jordan 1 Retro High",price:45000,cat:"Ruha",loc:"Miskolc",date:"3 órája",img:"👟",condition:"Új",seller:"SneakerHead",rating:4.6,views:987,negotiable:false},
+  {id:6,title:"Sony A7 IV fényképezőgép",price:720000,cat:"Elektronika",loc:"Budapest",date:"4 órája",img:"📷",condition:"Újszerű",seller:"PhotoPro",rating:4.9,views:654,negotiable:true},
+  {id:7,title:"Ikea MALM ágy 160x200",price:35000,cat:"Ház",loc:"Székesfehérvár",date:"5 órája",img:"🛏️",condition:"Jó állapotú",seller:"ButorozHun",rating:4.5,views:321,negotiable:true},
+  {id:8,title:"MacBook Pro M3 14\"",price:890000,cat:"Elektronika",loc:"Budapest",date:"6 órája",img:"💻",condition:"Újszerű",seller:"AppleFan",rating:4.9,views:1876,premium:true,negotiable:false},
+  {id:9,title:"Elektromos robogó 500W",price:175000,cat:"Jármű",loc:"Eger",date:"7 órája",img:"🛵",condition:"Jó állapotú",seller:"EcoRide",rating:4.7,views:543,negotiable:true},
+  {id:10,title:"PS5 konzol + 3 játék",price:165000,cat:"Elektronika",loc:"Veszprém",date:"8 órája",img:"🎮",condition:"Újszerű",seller:"GamerHUN",rating:4.8,views:2109,featured:true,negotiable:false},
+  {id:11,title:"Canon EOS R6 Mark II",price:880000,cat:"Elektronika",loc:"Kecskemét",date:"9 órája",img:"📸",condition:"Új",seller:"CamShop",rating:5.0,views:234,negotiable:false},
+  {id:12,title:"Adidas Ultraboost 23",price:28000,cat:"Ruha",loc:"Budapest",date:"10 órája",img:"👟",condition:"Új",seller:"SportStore",rating:4.6,views:567,negotiable:false},
+  {id:13,title:"Dyson V15 porszívó",price:145000,cat:"Ház",loc:"Szombathely",date:"11 órája",img:"🌀",condition:"Újszerű",seller:"CleanHouse",rating:4.8,views:432,negotiable:true},
+  {id:14,title:"Specialized Tarmac SL7",price:1200000,cat:"Sport",loc:"Budapest",date:"12 órája",img:"🚴",condition:"Jó állapotú",seller:"ProCyclist",rating:4.9,views:876,premium:true,negotiable:true},
+  {id:15,title:"Suzuki GSX-R 600",price:1850000,cat:"Jármű",loc:"Nyíregyháza",date:"13 órája",img:"🏍️",condition:"Jó állapotú",seller:"MotoKing",rating:4.7,views:1234,negotiable:true},
+  {id:16,title:"Bose QuietComfort 45",price:78000,cat:"Elektronika",loc:"Zalaegerszeg",date:"14 órája",img:"🎧",condition:"Újszerű",seller:"AudioMax",rating:4.8,views:345,negotiable:true},
+];
+
+const msgs = [
+  {from:"TechSeller99",text:"Szia! Az iPhone még elérhető?",time:"10:23",unread:true},
+  {from:"AutoPro_HU",text:"Személyes megtekintés lehetséges?",time:"09:15",unread:true},
+  {from:"BikeHunter",text:"Köszönöm a vásárlást! 🚴",time:"Tegnap",unread:false},
+  {from:"SneakerHead",text:"Mennyiért adnád el a cipőt?",time:"Tegnap",unread:false},
+];
+
+const notifs = [
+  {icon:"💬",text:"Új üzeneted érkezett TechSeller99-től",time:"10 perce"},
+  {icon:"❤️",text:"Valaki mentette a hirdetésedet",time:"2 órája"},
+  {icon:"👁️",text:"Az iPhone hirdetésedet 50-en nézték ma",time:"4 órája"},
+  {icon:"⭐",text:"Új értékelést kaptál: 5 csillag!",time:"Tegnap"},
+  {icon:"🔔",text:"Mentett keresésre új hirdetés érkezett: iPhone 14",time:"Tegnap"},
+];
+
+const reviews = [
+  {name:"Vásárló2024",rating:5,text:"Kiváló eladó! Gyors, pontos, az áru tökéletes állapotban érkezett. Ajánlom!",date:"2025. jan. 15."},
+  {name:"NagyPeti_88",rating:5,text:"Nagyon megbízható. Pontosan leírt mindent. Biztosan vásárolok tőle újra!",date:"2024. dec. 3."},
+  {name:"SzaboMari",rating:4,text:"Jó volt az ügylet, de a szállítás egy napot csúszott. Ajánlom!",date:"2024. nov. 20."},
+];
+
+let currentListings = [...sampleListings];
+let selectedStar = 0;
+let activeCategory = 'all';
+let currentPage = 1;
+const PER_PAGE = 12;
+let wishlist = new Set();
+let currentLang = 'hu';
+let isDark = false;
+let uploadedImgs = [];
+
+// ========== INIT ==========
+document.addEventListener('DOMContentLoaded', () => {
+  renderCategories();
+  renderListings();
+  renderMessages();
+  renderNotifications();
+  renderReviews();
+  renderDashboard();
+  initCounter();
+});
+
+// ========== CATEGORIES ==========
+function renderCategories() {
+  const tree = document.getElementById('catTree');
+  tree.innerHTML = '';
+  let allLi = document.createElement('li');
+  allLi.innerHTML = `<button class="cat-item" onclick="filterCat('all')"><span class="cat-icon">🏠</span>Összes<span class="cat-count">${sampleListings.length}</span></button>`;
+  tree.appendChild(allLi);
+  Object.entries(categories).forEach(([name, subs]) => {
+    const li = document.createElement('li');
+    const shortName = name.replace(/^[^\s]+\s/,'');
+    li.innerHTML = `
+      <button class="cat-item" onclick="toggleSubcat(this,'sub_${shortName}');filterCat('${shortName}')">
+        <span>${name}</span>
+        <span class="cat-count">${Math.floor(Math.random()*200)+10}</span>
+      </button>
+      <ul class="subcats" id="sub_${shortName}">
+        ${subs.map(s=>`<li onclick="filterCat('${s}')">${s}</li>`).join('')}
+      </ul>`;
+    tree.appendChild(li);
+  });
+}
+
+function toggleSubcat(btn, id) {
+  const el = document.getElementById(id);
+  if(el) el.classList.toggle('open');
+}
+
+function filterCat(cat) {
+  activeCategory = cat;
+  if(cat === 'all') currentListings = [...sampleListings];
+  else currentListings = sampleListings.filter(l => l.title.includes(cat) || l.cat.includes(cat) || Object.entries(categories).some(([k,v]) => k.includes(cat) || v.some(s => s.includes(cat))));
+  if(currentListings.length === 0) currentListings = sampleListings.slice(0,8);
+  currentPage = 1;
+  renderListings();
+  document.getElementById('listingsTitle').textContent = cat === 'all' ? '🔥 Legújabb hirdetések' : `📂 ${cat}`;
+  showPage('home');
+}
+
+// ========== LISTINGS ==========
+function renderListings() {
+  const grid = document.getElementById('listingsGrid');
+  if(!grid) return;
+  const start = (currentPage-1)*PER_PAGE;
+  const items = currentListings.slice(start, start+PER_PAGE);
+  grid.innerHTML = items.map(l => listingCard(l)).join('');
+  renderPagination();
+  renderMyListings();
+}
+
+function listingCard(l) {
+  const badge = l.premium ? `<div class="badge-ribbon badge-premium">⭐ Prémium</div>` :
+                l.featured ? `<div class="badge-ribbon badge-featured">✨ Kiemelt</div>` :
+                l.views > 1000 ? `<div class="badge-ribbon badge-hot">🔥 Forró</div>` :
+                `<div class="badge-ribbon badge-new">Új</div>`;
+  const wish = wishlist.has(l.id) ? '❤️' : '🤍';
+  const cond = {'Új':'condition-new','Újszerű':'condition-like-new','Jó állapotú':'condition-good','Használt':'condition-used'}[l.condition] || 'condition-used';
+  return `
+  <div class="listing-card ${l.premium?'premium-listing':l.featured?'featured-listing':''}" onclick="openListing(${l.id})">
+    ${badge}
+    <button class="wish-btn" onclick="event.stopPropagation();toggleWish(${l.id},this)">${wish}</button>
+    <div class="listing-img">${l.img}</div>
+    <div class="listing-body">
+      <div class="listing-title">${l.title}</div>
+      <div class="listing-price ${l.negotiable?'negotiable':''}">${l.price.toLocaleString('hu-HU')} Ft</div>
+      <div style="margin-top:6px"><span class="condition ${cond}">${l.condition}</span></div>
+      <div class="listing-meta">
+        <span class="listing-location">📍 ${l.loc}</span>
+        <span class="listing-date">${l.date}</span>
+      </div>
+      <div class="seller-inline">
+        <div class="avatar-sm">${l.seller.substring(0,2).toUpperCase()}</div>
+        <span class="seller-name-sm">${l.seller}</span>
+        <span class="stars-sm">${'★'.repeat(Math.round(l.rating))} ${l.rating}</span>
+        <span style="font-size:0.72rem;color:var(--text2);margin-left:auto">👁 ${l.views}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderPagination() {
+  const pg = document.getElementById('pagination');
+  if(!pg) return;
+  const total = Math.ceil(currentListings.length / PER_PAGE);
+  let html = '';
+  for(let i=1;i<=total;i++) {
+    html += `<button class="btn ${i===currentPage?'btn-primary':'btn-secondary'}" onclick="goPage(${i})">${i}</button>`;
+  }
+  pg.innerHTML = html;
+}
+
+function goPage(n) { currentPage = n; renderListings(); window.scrollTo(0,200); }
+
+function sortListings() {
+  const s = document.getElementById('sortSel').value;
+  if(s==='price-asc') currentListings.sort((a,b)=>a.price-b.price);
+  else if(s==='price-desc') currentListings.sort((a,b)=>b.price-a.price);
+  else if(s==='popular') currentListings.sort((a,b)=>b.views-a.views);
+  else if(s==='newest') currentListings.sort((a,b)=>a.id-b.id);
+  else currentListings.sort((a,b)=>b.id-a.id);
+  renderListings();
+}
+
+function setView(v) {
+  const grid = document.getElementById('listingsGrid');
+  if(v==='list') { grid.classList.add('list-view'); document.getElementById('listViewBtn').classList.add('active'); document.getElementById('gridViewBtn').classList.remove('active'); }
+  else { grid.classList.remove('list-view'); document.getElementById('gridViewBtn').classList.add('active'); document.getElementById('listViewBtn').classList.remove('active'); }
+}
+
+function toggleWish(id, btn) {
+  if(wishlist.has(id)) { wishlist.delete(id); btn.textContent='🤍'; showToast('Eltávolítva a kedvencekből','info'); }
+  else { wishlist.add(id); btn.textContent='❤️'; showToast('Hozzáadva a kedvencekhez! ❤️','success'); }
+}
+
+// ========== OPEN LISTING ==========
+function openListing(id) {
+  const l = sampleListings.find(x=>x.id===id);
+  if(!l) return;
+  document.getElementById('detailTitle').textContent = l.title;
+  const cond = {'Új':'condition-new','Újszerű':'condition-like-new','Jó állapotú':'condition-good','Használt':'condition-used'}[l.condition] || 'condition-used';
+  document.getElementById('listingDetailBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div style="background:var(--surface2);border-radius:var(--radius);height:300px;display:flex;align-items:center;justify-content:center;font-size:6rem;margin-bottom:12px">${l.img}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${[1,2,3].map(i=>`<div style="width:70px;height:70px;background:var(--surface2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;border:2px solid ${i===1?'var(--primary)':'var(--border)'}">${l.img}</div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <h2 style="font-size:1.3rem;margin-bottom:12px">${l.title}</h2>
+        <div style="font-size:2rem;font-weight:900;color:var(--primary);margin-bottom:8px">${l.price.toLocaleString('hu-HU')} Ft ${l.negotiable?'<span style="font-size:0.8rem;color:var(--text2);font-weight:400">(alkuképes)</span>':''}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <span class="condition ${cond}">${l.condition}</span>
+          ${l.premium?'<span class="badge-ribbon badge-premium" style="position:static">⭐ Prémium</span>':''}
+          ${l.featured?'<span class="badge-ribbon badge-featured" style="position:static">✨ Kiemelt</span>':''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;font-size:0.88rem">
+          <div>📍 <strong>Helyszín:</strong> ${l.loc}</div>
+          <div>🕐 <strong>Feladva:</strong> ${l.date}</div>
+          <div>👁 <strong>Megtekintések:</strong> ${l.views}</div>
+          <div>📦 <strong>Szállítás:</strong> Postai szállítás / Személyes átvétel</div>
+          <div>💳 <strong>Fizetés:</strong> Készpénz, Barion, PayPal, Banki átutalás</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="avatar-lg" style="width:50px;height:50px;font-size:1rem">${l.seller.substring(0,2)}</div>
+            <div>
+              <div style="font-weight:700">${l.seller}</div>
+              <div class="stars-sm">★★★★★ ${l.rating} · Megbízható eladó</div>
+              <div style="font-size:0.78rem;color:var(--text2)">✓ Azonosított · ${Math.floor(Math.random()*50)+5} értékelés</div>
+            </div>
+            <button class="btn btn-secondary" style="margin-left:auto;font-size:0.82rem" onclick="showModal('profileModal')">Profil</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-primary btn-lg" onclick="openPayment(${id})">💳 Megveszem</button>
+          <button class="btn btn-secondary btn-lg" onclick="showModal('messagesModal');closeModal('listingDetailModal')">💬 Üzenetet küldök</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary" onclick="toggleWish(${l.id},this)" style="flex:1">🤍 Kedvencekhez</button>
+            <button class="btn btn-secondary" onclick="shareL(${l.id})" style="flex:1">📤 Megosztás</button>
+            <button class="btn btn-secondary" style="flex:1" onclick="showModal('boostModal')">⭐ Kiemelés</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn btn-secondary" style="flex:1;font-size:0.82rem" onclick="openEdit(${l.id})">✏️ Szerkesztés</button>
+            <button class="btn btn-secondary" style="flex:1;font-size:0.82rem;color:var(--danger)" onclick="showModal('reportModal')">🚨 Bejelentés</button>
+            <button class="btn btn-secondary" style="flex:1;font-size:0.82rem" onclick="printListing(${l.id})">🖨️ Nyomtatás</button>
+            <button class="btn btn-secondary" style="flex:1;font-size:0.82rem" onclick="openInvoice(${l.id})">🧾 Számla</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:24px">
+      <h3 style="margin-bottom:12px">Leírás</h3>
+      <p style="font-size:0.9rem;line-height:1.7;color:var(--text2)">Kiváló állapotú, keveset használt ${l.title}. Az eredeti dobozzal és minden tartozékkal együtt kerül eladásra. Személyesen megtekinthető ${l.loc}-ban. Komolyabb érdeklődőket várom!</p>
+    </div>
+    <div style="margin-top:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3>Értékelések</h3>
+        <button class="btn btn-secondary" onclick="showModal('reviewModal')">+ Értékelés írása</button>
+      </div>
+      <div id="detailReviews"></div>
+    </div>`;
+  // render reviews in modal
+  setTimeout(() => {
+    const dr = document.getElementById('detailReviews');
+    if(dr) dr.innerHTML = reviews.map(r => `
+      <div class="review-card">
+        <div class="review-header"><span class="reviewer">${r.name}</span><span class="review-date">${r.date}</span></div>
+        <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+        <div class="review-text" style="margin-top:6px">${r.text}</div>
+      </div>`).join('');
+  },50);
+  showModal('listingDetailModal');
+}
+
+function openPayment(id) {
+  const l = sampleListings.find(x=>x.id===id);
+  document.getElementById('payItem').textContent = l.title;
+  document.getElementById('payTotal').textContent = (l.price+990).toLocaleString('hu-HU')+' Ft';
+  showModal('paymentModal');
+}
+
+function shareL(id) {
+  navigator.clipboard.writeText(window.location.href+'?listing='+id).then(()=>showToast('Link másolva! 📋','success'));
+}
+
+// ========== SEARCH ==========
+function doSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const cat = document.getElementById('searchCat').value;
+  currentListings = sampleListings.filter(l => {
+    const matchQ = !q || l.title.toLowerCase().includes(q) || l.cat.toLowerCase().includes(q) || l.loc.toLowerCase().includes(q);
+    const matchC = !cat || l.cat.includes(cat);
+    return matchQ && matchC;
+  });
+  if(currentListings.length === 0) currentListings = sampleListings.slice(0,4);
+  currentPage = 1;
+  renderListings();
+  showPage('home');
+  showToast(`${currentListings.length} hirdetés találat 🔍`,'info');
+}
+
+function liveSearch(v) {
+  if(v.length > 2) {
+    currentListings = sampleListings.filter(l => l.title.toLowerCase().includes(v.toLowerCase()));
+    currentPage = 1;
+    renderListings();
+  } else if(v.length === 0) {
+    currentListings = [...sampleListings];
+    renderListings();
+  }
+}
+
+function applyFilters() {
+  const mn = parseFloat(document.getElementById('priceMin').value)||0;
+  const mx = parseFloat(document.getElementById('priceMax').value)||Infinity;
+  const loc = document.getElementById('filterLoc').value.toLowerCase();
+  currentListings = sampleListings.filter(l => l.price>=mn && l.price<=mx && (!loc||l.loc.toLowerCase().includes(loc)));
+  currentPage = 1;
+  renderListings();
+}
+
+function resetFilters() {
+  document.getElementById('priceMin').value='';
+  document.getElementById('priceMax').value='';
+  document.getElementById('filterLoc').value='';
+  currentListings = [...sampleListings];
+  renderListings();
+}
+
+// ========== NEW LISTING ==========
+const subcatMap = {
+  'Elektronika': ['Mobiltelefonok','Laptopok','TV & Hangszórók','Fényképezőgépek','Konzolok'],
+  'Ruha & Divat': ['Női ruházat','Férfi ruházat','Cipők','Táskák'],
+  'Járművek': ['Személyautók','Motorkerékpárok','Kerékpárok','Haszonjárművek'],
+  'Ingatlan': ['Eladó lakások','Kiadó lakások','Házak','Telkek'],
+  'Sport & Szabadidő': ['Labdajátékok','Fitnesz','Kerékpározás','Horgászat'],
+  'Ház & Kert': ['Bútorok','Konyhai eszközök','Háztartási gépek','Kert'],
+  'Könyvek & Játékok': ['Könyvek','Zene & Filmek','Társasjátékok'],
+  'Gyerek': ['Játékok','Ruházat','Bútorok'],
+  'Állatoknak': ['Kutya','Macska','Hal','Madár'],
+  'Munka & Szolgáltatás': ['Munkalehetőségek','Szabadúszók','IT'],
+};
+function updateSubcats() {
+  const cat = document.getElementById('nl-cat').value;
+  const sub = document.getElementById('nl-subcat');
+  const subs = subcatMap[cat] || [];
+  sub.innerHTML = subs.length ? subs.map(s=>`<option>${s}</option>`).join('') : '<option>Nincs alkategória</option>';
+}
+
+function handleFiles(files) {
+  Array.from(files).forEach(f => {
+    if(uploadedImgs.length >= 20) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      uploadedImgs.push(e.target.result);
+      renderPreviews();
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadArea').classList.remove('drag');
+  handleFiles(e.dataTransfer.files);
+}
+function renderPreviews() {
+  const c = document.getElementById('imgPreviews');
+  c.innerHTML = uploadedImgs.map((src,i) => `
+    <div class="img-preview">
+      <img src="${src}" alt="">
+      <button class="img-remove" onclick="removeImg(${i})">✕</button>
+    </div>`).join('');
+}
+function removeImg(i) { uploadedImgs.splice(i,1); renderPreviews(); }
+
+function submitListing() {
+  const title = document.getElementById('nl-title').value;
+  const price = document.getElementById('nl-price').value;
+  const cat = document.getElementById('nl-cat').value;
+  if(!title || !price || !cat) { showToast('Tölts ki minden kötelező mezőt! ⚠️','error'); return; }
+  const newL = {
+    id: Date.now(), title, price: parseInt(price), cat,
+    loc: document.getElementById('nl-loc').value || 'Ismeretlen',
+    date: 'Épp most', img: '📦',
+    condition: document.getElementById('nl-condition').value,
+    seller: 'Te', rating: 5.0, views: 0,
+    negotiable: document.getElementById('nl-negotiable').checked,
+  };
+  sampleListings.unshift(newL);
+  currentListings.unshift(newL);
+  renderListings();
+  closeModal('newListingModal');
+  uploadedImgs = [];
+  showToast('✅ Hirdetés sikeresen feladva!','success');
+}
+
+function saveDraft() { showToast('💾 Piszkozat mentve!','info'); }
+
+// ========== MESSAGES ==========
+function renderMessages() {
+  const list = document.getElementById('msgList');
+  if(!list) return;
+  list.innerHTML = msgs.map((m,i) => `
+    <div class="msg-item ${m.unread?'unread':''}" onclick="openChat(${i})">
+      <div class="avatar-sm">${m.from.substring(0,2)}</div>
+      <div class="msg-content">
+        <div class="msg-from">${m.from}</div>
+        <div class="msg-preview">${m.text}</div>
+      </div>
+      <div class="msg-time">${m.time}</div>
+    </div>`).join('');
+}
+
+function openChat(i) {
+  const m = msgs[i];
+  document.getElementById('chatWith').textContent = m.from;
+  document.getElementById('chatMessages').innerHTML = `
+    <div class="chat-msg"><div class="chat-bubble">${m.text}</div><div style="font-size:0.7rem;color:var(--text2);margin-top:3px">${m.time}</div></div>
+    <div class="chat-msg own"><div class="chat-bubble">Szia! Igen, elérhető!</div><div style="font-size:0.7rem;color:var(--text2);margin-top:3px;text-align:right">10:25</div></div>`;
+}
+
+function sendMsg() {
+  const inp = document.getElementById('chatInput');
+  const v = inp.value.trim();
+  if(!v) return;
+  const chat = document.getElementById('chatMessages');
+  chat.innerHTML += `<div class="chat-msg own"><div class="chat-bubble">${v}</div><div style="font-size:0.7rem;color:var(--text2);margin-top:3px;text-align:right">Most</div></div>`;
+  inp.value = '';
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// ========== NOTIFICATIONS ==========
+function renderNotifications() {
+  const c = document.getElementById('notifList');
+  if(!c) return;
+  c.innerHTML = notifs.map(n => `
+    <div style="display:flex;gap:12px;padding:12px;border-bottom:1px solid var(--border);align-items:flex-start">
+      <span style="font-size:1.4rem">${n.icon}</span>
+      <div><div style="font-size:0.88rem">${n.text}</div><div style="font-size:0.75rem;color:var(--text2);margin-top:4px">${n.time}</div></div>
+    </div>`).join('');
+}
+
+// ========== REVIEWS ==========
+function renderReviews() {
+  const c = document.getElementById('reviewsList');
+  if(!c) return;
+  c.innerHTML = reviews.map(r => `
+    <div class="review-card">
+      <div class="review-header"><span class="reviewer">${r.name}</span><span class="review-date">${r.date}</span></div>
+      <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+      <div class="review-text" style="margin-top:6px">${r.text}</div>
+    </div>`).join('');
+}
+
+function setStar(n) {
+  selectedStar = n;
+  document.querySelectorAll('.star').forEach((s,i) => s.classList.toggle('lit', i<n));
+}
+
+function submitReview() {
+  if(!selectedStar) { showToast('Válassz csillagot! ⭐','error'); return; }
+  showToast('✅ Értékelés beküldve! Köszönjük!','success');
+  closeModal('reviewModal');
+}
+
+// ========== DASHBOARD ==========
+function renderDashboard() {
+  const days = ['H','K','Sze','Cs','P','Szo','V'];
+  const vc = document.getElementById('viewsChart');
+  const rc = document.getElementById('revenueChart');
+  const vVals = [42,89,67,134,201,178,243];
+  const rVals = [12000,45000,28000,67000,89000,54000,112000];
+  const max1 = Math.max(...vVals), max2 = Math.max(...rVals);
+  if(vc) vc.innerHTML = vVals.map((v,i) => `
+    <div class="chart-col">
+      <div class="chart-val">${v}</div>
+      <div class="chart-fill" style="height:${(v/max1)*100}px"></div>
+      <div class="chart-label">${days[i]}</div>
+    </div>`).join('');
+  if(rc) rc.innerHTML = rVals.map((v,i) => `
+    <div class="chart-col">
+      <div class="chart-val">${(v/1000).toFixed(0)}k</div>
+      <div class="chart-fill" style="height:${(v/max2)*100}px;background:var(--secondary)"></div>
+      <div class="chart-label">${days[i]}</div>
+    </div>`).join('');
+  const dl = document.getElementById('dashListings');
+  if(dl) dl.innerHTML = sampleListings.slice(0,5).map(l => `
+    <tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px">${l.img} ${l.title.substring(0,30)}...</td>
+      <td style="padding:8px">${l.price.toLocaleString('hu-HU')} Ft</td>
+      <td style="padding:8px"><span class="badge-ribbon badge-new" style="position:static">Aktív</span></td>
+      <td style="padding:8px">👁 ${l.views}</td>
+      <td style="padding:8px">
+        <button class="btn btn-secondary" style="font-size:0.78rem;padding:4px 8px" onclick="showModal('boostModal')">⭐ Kiemelés</button>
+        <button class="btn btn-danger" style="font-size:0.78rem;padding:4px 8px;margin-left:4px">Törlés</button>
+      </td>
+    </tr>`).join('');
+}
+
+function renderMyListings() {
+  const c = document.getElementById('myActiveListings');
+  if(!c) return;
+  c.innerHTML = sampleListings.slice(0,6).map(l => listingCard(l)).join('');
+}
+
+// ========== PAYMENT ==========
+function selectPay(el, method) {
+  el.closest('.payment-options').querySelectorAll('.payment-option').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function processPayment() {
+  showToast('💳 Átirányítás a fizetési felületre...','info');
+  setTimeout(() => { closeModal('paymentModal'); showToast('✅ Fizetés sikeres! Köszönjük a vásárlást!','success'); },1500);
+}
+
+// ========== BOOST ==========
+function selectBoost(el, type) {
+  el.closest('.boost-plans').querySelectorAll('.boost-plan').forEach(p => p.style.borderColor='');
+  el.style.borderColor = 'var(--primary)';
+  const sec = document.getElementById('boostPaySection');
+  if(sec) sec.style.display = type === 'none' ? 'none' : 'block';
+}
+
+// ========== MODALS ==========
+function showModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('click', e => {
+  if(e.target.classList.contains('modal-overlay')) closeModal(e.target.id);
+});
+
+// ========== TABS ==========
+function switchTab(containerId, tabId) {
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  container.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const target = document.getElementById(tabId);
+  if(target) target.classList.add('active');
+  // find parent modal/area tabs
+  const modal = container.closest('.modal-body') || container.closest('.card-body') || container.closest('main');
+  if(modal) {
+    modal.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    // highlight clicked tab
+    event.target.classList.add('active');
+  }
+}
+
+// ========== PAGES ==========
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.style.display='none');
+  const el = document.getElementById('page-'+page);
+  if(el) el.style.display='block';
+  // close all dropdowns
+  document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('open'));
+}
+
+// ========== DROPDOWNS ==========
+function toggleDropdown(id) {
+  const dd = document.getElementById(id);
+  document.querySelectorAll('.dropdown-menu').forEach(d => { if(d.id !== id) d.classList.remove('open'); });
+  dd.classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if(!e.target.closest('.dropdown')) document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('open'));
+});
+
+// ========== THEME ==========
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeBtn').textContent = isDark ? '☀️ Világos' : '🌙 Sötét';
+}
+
+// ========== LANGUAGE ==========
+const translations = {
+  hu: { hero: '🛍️ Magyarország legjobb piactere', heroDesc: 'Millió hirdetés, ingyenes feladás, biztonságos fizetés. Adj el, vegyél, cserélj!', listings: '🔥 Legújabb hirdetések' },
+  en: { hero: '🛍️ Hungary\'s Best Marketplace', heroDesc: 'Millions of listings, free posting, secure payments. Buy, sell, trade!', listings: '🔥 Latest Listings' },
+};
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.getElementById('langLabel').textContent = lang.toUpperCase();
+  const t = translations[lang];
+  if(t) {
+    document.getElementById('heroTitle').textContent = t.hero;
+    document.getElementById('heroDesc').textContent = t.heroDesc;
+    document.getElementById('listingsTitle').textContent = t.listings;
+  }
+  document.querySelectorAll('[data-'+lang+']').forEach(el => el.textContent = el.getAttribute('data-'+lang));
+  toggleDropdown('langDD');
+  showToast(lang==='hu' ? '🇭🇺 Magyar nyelv beállítva' : '🇬🇧 Language set to English','info');
+}
+
+// ========== GDPR ==========
+function acceptGDPR() {
+  document.getElementById('gdprBanner').style.display = 'none';
+  showToast('✅ Süti beállítások mentve!','success');
+}
+
+// ========== AUTH ==========
+function doLogin() { closeModal('loginModal'); showToast('✅ Sikeres bejelentkezés!','success'); }
+function doRegister() { closeModal('registerModal'); showToast('✅ Sikeres regisztráció! Ellenőrizd az e-mailed.','success'); }
+function saveProfile() { showToast('✅ Profil mentve!','success'); }
+
+// ========== TOAST ==========
+function showToast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(100%)'; t.style.transition='all 0.3s'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+// ========== FAVORITES ==========
+function openFavorites() {
+  const grid = document.getElementById('favGrid');
+  const empty = document.getElementById('favEmpty');
+  const favItems = sampleListings.filter(l => wishlist.has(l.id));
+  if(favItems.length === 0) { grid.innerHTML=''; empty.style.display='block'; }
+  else { empty.style.display='none'; grid.innerHTML = favItems.map(l => listingCard(l)).join(''); }
+  showModal('favoritesModal');
+}
+
+// ========== EDIT LISTING ==========
+let editingId = null;
+function openEdit(id) {
+  const l = sampleListings.find(x=>x.id===id);
+  if(!l) return;
+  editingId = id;
+  document.getElementById('edit-title').value = l.title;
+  document.getElementById('edit-price').value = l.price;
+  document.getElementById('edit-condition').value = l.condition;
+  document.getElementById('edit-loc').value = l.loc;
+  document.getElementById('edit-negotiable').checked = l.negotiable;
+  document.getElementById('edit-sold').checked = false;
+  showModal('editListingModal');
+}
+function saveEditListing() {
+  const l = sampleListings.find(x=>x.id===editingId);
+  if(!l) return;
+  l.title = document.getElementById('edit-title').value;
+  l.price = parseInt(document.getElementById('edit-price').value)||l.price;
+  l.condition = document.getElementById('edit-condition').value;
+  l.loc = document.getElementById('edit-loc').value;
+  l.negotiable = document.getElementById('edit-negotiable').checked;
+  if(document.getElementById('edit-sold').checked) l.sold = true;
+  renderListings();
+  closeModal('editListingModal');
+  showToast('✅ Hirdetés frissítve!','success');
+}
+function deleteListing() {
+  if(!confirm('Biztosan törlöd a hirdetést?')) return;
+  const idx = sampleListings.findIndex(x=>x.id===editingId);
+  if(idx>-1) sampleListings.splice(idx,1);
+  currentListings = currentListings.filter(x=>x.id!==editingId);
+  renderListings();
+  closeModal('editListingModal');
+  showToast('🗑️ Hirdetés törölve','info');
+}
+
+// ========== REPORT ==========
+function submitReport() {
+  closeModal('reportModal');
+  showToast('🚨 Bejelentés elküldve! Hamarosan kivizsgáljuk.','success');
+}
+
+// ========== SHARE ==========
+function shareL(id) {
+  const url = window.location.href.split('?')[0]+'?listing='+id;
+  document.getElementById('shareUrl').value = url;
+  showModal('shareModal');
+}
+function shareTo(platform) {
+  const url = encodeURIComponent(document.getElementById('shareUrl').value);
+  const txt = encodeURIComponent('Nézd meg ezt a hirdetést a PiacTéren!');
+  const links = {
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+    whatsapp: `https://wa.me/?text=${txt}%20${url}`,
+    telegram: `https://t.me/share/url?url=${url}&text=${txt}`,
+    messenger: `https://www.facebook.com/dialog/send?link=${url}&app_id=YOUR_FB_APP_ID`
+  };
+  window.open(links[platform],'_blank');
+}
+function copyShareUrl() {
+  navigator.clipboard.writeText(document.getElementById('shareUrl').value).then(()=>showToast('📋 Link másolva!','success'));
+}
+
+// ========== AUCTION ==========
+let auctionBids = [{user:'anonymus_99',amount:45000,time:'14:22'},{user:'collector_hu',amount:42000,time:'14:18'},{user:'SneakerHead',amount:38000,time:'14:10'}];
+let auctionCurrent = 45000;
+let auctionSeconds = 83647;
+function openAuction() {
+  renderAuctionBids();
+  showModal('auctionModal');
+  startAuctionTimer();
+}
+function renderAuctionBids() {
+  document.getElementById('auctionBidList').innerHTML = auctionBids.map(b=>`
+    <div style="display:flex;justify-content:space-between;padding:8px;background:var(--surface2);border-radius:6px;margin-bottom:6px;font-size:0.82rem">
+      <span>👤 ${b.user}</span><span style="font-weight:700;color:var(--primary)">${b.amount.toLocaleString('hu-HU')} Ft</span><span style="color:var(--text2)">${b.time}</span>
+    </div>`).join('');
+  document.getElementById('auctionCurrentBid').textContent = auctionCurrent.toLocaleString('hu-HU')+' Ft';
+  document.getElementById('minBid').textContent = (auctionCurrent+1000).toLocaleString('hu-HU');
+}
+function placeBid() {
+  const v = parseInt(document.getElementById('myBidInput').value);
+  if(!v || v <= auctionCurrent) { showToast('A licited legalább '+(auctionCurrent+1000).toLocaleString('hu-HU')+' Ft legyen!','error'); return; }
+  auctionCurrent = v;
+  auctionBids.unshift({user:'Te',amount:v,time:new Date().toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'})});
+  document.getElementById('auctionLeader').textContent='Legmagasabb licitáló: Te 🎉';
+  renderAuctionBids();
+  document.getElementById('myBidInput').value='';
+  showToast('🔨 Licit leadva: '+v.toLocaleString('hu-HU')+' Ft!','success');
+}
+function autoBid() { showToast('🤖 Automata licit beállítva! Értesítünk, ha valaki túllicit.','info'); }
+let auctionTimerInterval;
+function startAuctionTimer() {
+  clearInterval(auctionTimerInterval);
+  auctionTimerInterval = setInterval(()=>{
+    if(auctionSeconds<=0){clearInterval(auctionTimerInterval);document.getElementById('auctionTimer').textContent='LEJÁRT';return;}
+    auctionSeconds--;
+    const h=Math.floor(auctionSeconds/3600),m=Math.floor((auctionSeconds%3600)/60),s=auctionSeconds%60;
+    document.getElementById('auctionTimer').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  },1000);
+}
+
+// ========== FORMSPREE CONTACT ==========
+function submitContact(e) {
+  e.preventDefault();
+  const form = document.getElementById('contactForm');
+  fetch(form.action,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}})
+    .then(r=>{
+      if(r.ok){closeModal('contactModal');showToast('✅ Üzenet elküldve! Hamarosan válaszolunk.','success');}
+      else showToast('❌ Hiba a küldés során. Próbáld újra!','error');
+    }).catch(()=>{ closeModal('contactModal'); showToast('✅ Üzenet elküldve! (demo mód)','success'); });
+}
+
+// ========== INVOICE ==========
+function openInvoice(id) {
+  const l = sampleListings.find(x=>x.id===id);
+  if(!l) return;
+  document.getElementById('invNum').textContent = String(id).substring(0,5);
+  document.getElementById('invDate').textContent = new Date().toLocaleDateString('hu-HU');
+  document.getElementById('invItems').innerHTML = `
+    <tr><td style="padding:8px">${l.title}</td><td style="padding:8px;text-align:right">${l.price.toLocaleString('hu-HU')} Ft</td></tr>
+    <tr><td style="padding:8px">Szállítás</td><td style="padding:8px;text-align:right">990 Ft</td></tr>`;
+  document.getElementById('invTotal').textContent = (l.price+990).toLocaleString('hu-HU')+' Ft';
+  showModal('invoiceModal');
+}
+function printInvoice() { window.print(); }
+
+// ========== PRINT LISTING ==========
+function printListing(id) {
+  const l = sampleListings.find(x=>x.id===id);
+  if(!l) return;
+  const w = window.open('','_blank');
+  w.document.write(`<html><head><title>${l.title}</title><style>body{font-family:sans-serif;padding:30px}h1{color:#e85d04}.meta{color:#666;margin:8px 0}</style></head>
+  <body><h1>${l.img} ${l.title}</h1>
+  <div class="meta"><strong>Ár:</strong> ${l.price.toLocaleString('hu-HU')} Ft ${l.negotiable?'(alkuképes)':''}</div>
+  <div class="meta"><strong>Állapot:</strong> ${l.condition}</div>
+  <div class="meta"><strong>Helyszín:</strong> ${l.loc}</div>
+  <div class="meta"><strong>Eladó:</strong> ${l.seller} (${l.rating}⭐)</div>
+  <div class="meta"><strong>Feladva:</strong> ${l.date}</div>
+  <hr><p>Forrás: PiacTér.hu</p></body></html>`);
+  w.print();
+}
+
+// ========== ADMIN ==========
+function renderAdmin() {
+  const tbl = document.getElementById('adminListingsTable');
+  if(tbl) tbl.innerHTML = sampleListings.slice(0,8).map(l=>`
+    <tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:6px">#${l.id}</td>
+      <td style="padding:6px">${l.img} ${l.title.substring(0,25)}...</td>
+      <td style="padding:6px">${l.seller}</td>
+      <td style="padding:6px">${l.price.toLocaleString('hu-HU')} Ft</td>
+      <td style="padding:6px"><span style="background:var(--success);color:white;padding:2px 8px;border-radius:20px;font-size:0.72rem">Aktív</span></td>
+      <td style="padding:6px;display:flex;gap:4px">
+        <button class="btn btn-secondary" style="font-size:0.72rem;padding:3px 8px" onclick="openEdit(${l.id});closeModal('adminModal')">✏️</button>
+        <button class="btn btn-danger" style="font-size:0.72rem;padding:3px 8px" onclick="editingId=${l.id};deleteListing()">🗑</button>
+        <button class="btn btn-premium" style="font-size:0.72rem;padding:3px 8px;background:var(--danger)">🚫 Tiltás</button>
+      </td>
+    </tr>`).join('');
+  const ut = document.getElementById('adminUsersTable');
+  if(ut) {
+    const users=['TechSeller99','AutoPro_HU','BikeHunter','SneakerHead','PhotoPro'];
+    ut.innerHTML = users.map(u=>`
+      <tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:6px">👤 ${u}</td>
+        <td style="padding:6px">${u.toLowerCase()}@email.hu</td>
+        <td style="padding:6px">${Math.floor(Math.random()*30)+1}</td>
+        <td style="padding:6px">⭐ ${(4+Math.random()).toFixed(1)}</td>
+        <td style="padding:6px;display:flex;gap:4px">
+          <button class="btn btn-secondary" style="font-size:0.72rem;padding:3px 8px">✉️</button>
+          <button class="btn btn-danger" style="font-size:0.72rem;padding:3px 8px">🚫 Tiltás</button>
+        </td>
+      </tr>`).join('');
+  }
+  const rp = document.getElementById('adminReports');
+  if(rp) rp.innerHTML = ['Hamis hirdetés – #'+sampleListings[0].id,'Spam – #'+sampleListings[2].id,'Tiltott termék – #'+sampleListings[4].id].map(r=>`
+    <div style="background:var(--surface2);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:0.88rem">🚨 ${r}</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-success" style="font-size:0.78rem;padding:4px 10px" onclick="showToast('✅ Hirdetés eltávolítva','success')">Eltávolítás</button>
+        <button class="btn btn-secondary" style="font-size:0.78rem;padding:4px 10px" onclick="showToast('Bejelentés elutasítva','info')">Elutasítás</button>
+      </div>
+    </div>`).join('');
+  const cs = document.getElementById('adminCatStats');
+  if(cs) cs.innerHTML = Object.keys(categories).map(k=>{
+    const pct=Math.floor(Math.random()*80)+10;
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:0.85rem">
+      <span style="width:140px">${k}</span>
+      <div style="flex:1;background:var(--border);border-radius:4px;height:8px"><div style="width:${pct}%;background:var(--primary);height:8px;border-radius:4px"></div></div>
+      <span style="width:35px;text-align:right">${pct}%</span>
+    </div>`;}).join('');
+}
+// Patch showModal to render admin on open
+const _origShowModal = showModal;
+window.showModal = function(id) {
+  _origShowModal(id);
+  if(id==='adminModal') renderAdmin();
+};
+function initCounter() {
+  const els = [
+    {id:'statListings', target:1247832},
+    {id:'statUsers', target:389041},
+    {id:'statSold', target:4891204},
+  ];
+  els.forEach(({id, target}) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    let current = 0;
+    const step = target / 60;
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = Math.round(current).toLocaleString('hu-HU');
+      if(current >= target) clearInterval(timer);
+    }, 16);
+  });
+}
+</script>
+</body>
+</html>
