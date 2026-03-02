@@ -1,1391 +1,1067 @@
 // ============================================================
-// PIACTÉR – TELJES SUPABASE BACKEND
-// ============================================================
-// TELEPÍTÉS:
-// 1. Menj a https://supabase.com oldalra → New Project
-// 2. Másold ki a Project URL-t és az anon key-t
-// 3. Cseréld ki alul a SUPABASE_URL és SUPABASE_ANON_KEY értékeket
-// 4. Futtasd le az SQL sémát a Supabase SQL Editorban
-// 5. Másold be ezt a fájlt a HTML <script> tagek közé (a meglévő script elé)
+// PIACTÉR – TELJES SUPABASE BACKEND (10/10)
+// Futtasd le a Supabase SQL Editorban SORBAN!
 // ============================================================
 
 // ============================================================
-// 1. SQL SÉMA – ezt futtasd le a Supabase SQL Editorban
+// 0. EXTENSIONS
 // ============================================================
-/*
--- FELHASZNÁLÓK (profiles)
-CREATE TABLE profiles (
-  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-  username TEXT UNIQUE NOT NULL,
-  full_name TEXT,
-  email TEXT,
-  phone TEXT,
-  location TEXT,
-  zip TEXT,
-  avatar_url TEXT,
-  bio TEXT,
-  is_verified BOOLEAN DEFAULT FALSE,
-  is_banned BOOLEAN DEFAULT FALSE,
-  loyalty_points INTEGER DEFAULT 0,
-  loyalty_level TEXT DEFAULT 'bronze',
-  referral_code TEXT UNIQUE,
-  referred_by UUID REFERENCES profiles(id),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "unaccent";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+
+-- ============================================================
+    --1. TÁBLÁK
+-- ============================================================
+
+    CREATE TABLE profiles(
+        id                UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+        username          TEXT UNIQUE NOT NULL,
+        full_name         TEXT,
+        email             TEXT,
+        phone             TEXT,
+        location          TEXT,
+        zip               TEXT,
+        avatar_url        TEXT,
+        bio               TEXT,
+        is_verified       BOOLEAN DEFAULT FALSE,
+        is_banned         BOOLEAN DEFAULT FALSE,
+        is_admin          BOOLEAN DEFAULT FALSE,
+        loyalty_points    INTEGER DEFAULT 0,
+        loyalty_level     TEXT DEFAULT 'bronze' CHECK(loyalty_level IN('bronze', 'silver', 'gold', 'platinum')),
+        referral_code     TEXT UNIQUE DEFAULT upper(substring(gen_random_uuid():: text, 1, 8)),
+        referred_by       UUID REFERENCES profiles(id) ON DELETE SET NULL,
+        total_sales       INTEGER DEFAULT 0,
+        total_purchases   INTEGER DEFAULT 0,
+        response_rate     NUMERIC(5, 2) DEFAULT 100.00,
+        last_seen         TIMESTAMPTZ DEFAULT NOW(),
+        created_at        TIMESTAMPTZ DEFAULT NOW(),
+        updated_at        TIMESTAMPTZ DEFAULT NOW()
+    );
+
+CREATE TABLE categories(
+        id            SERIAL PRIMARY KEY,
+        name          TEXT NOT NULL,
+        slug          TEXT UNIQUE NOT NULL,
+        icon          TEXT,
+        parent_id     INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+        listing_count INTEGER DEFAULT 0,
+        sort_order    INTEGER DEFAULT 0,
+        is_active     BOOLEAN DEFAULT TRUE
+    );
+
+CREATE TABLE listings(
+        id                   UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        user_id              UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+        title                TEXT NOT NULL CHECK(char_length(title) BETWEEN 3 AND 150),
+        description          TEXT CHECK(char_length(description) <= 5000),
+        price                INTEGER NOT NULL CHECK(price >= 0),
+        negotiable           BOOLEAN DEFAULT FALSE,
+        condition            TEXT CHECK(condition IN('new', 'like_new', 'good', 'used', 'for_parts')) DEFAULT 'good',
+        category_id          INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+        location             TEXT,
+        zip                  TEXT,
+        shipping             TEXT DEFAULT 'both' CHECK(shipping IN('personal', 'shipping', 'both')),
+        shipping_cost        INTEGER DEFAULT 0 CHECK(shipping_cost >= 0),
+        payment_methods      TEXT[] DEFAULT ARRAY['cash'],
+        images               TEXT[] DEFAULT ARRAY[]:: TEXT[],
+        status               TEXT CHECK(status IN('active', 'sold', 'expired', 'draft', 'banned')) DEFAULT 'active',
+        boost_type           TEXT CHECK(boost_type IN('none', 'featured', 'premium', 'turbo')) DEFAULT 'none',
+        boost_until          TIMESTAMPTZ,
+        views                INTEGER DEFAULT 0,
+        watchers             INTEGER DEFAULT 0,
+        is_auction           BOOLEAN DEFAULT FALSE,
+        auction_start_price  INTEGER CHECK(auction_start_price > 0),
+        auction_current_price INTEGER,
+        auction_end_time     TIMESTAMPTZ,
+        search_vector        TSVECTOR,
+        created_at           TIMESTAMPTZ DEFAULT NOW(),
+        updated_at           TIMESTAMPTZ DEFAULT NOW(),
+        expires_at           TIMESTAMPTZ DEFAULT NOW() + INTERVAL '30 days'
+    );
+
+--Full - text search index
+CREATE INDEX listings_search_idx ON listings USING GIN(search_vector);
+CREATE INDEX listings_status_idx ON listings(status);
+CREATE INDEX listings_user_idx ON listings(user_id);
+CREATE INDEX listings_cat_idx ON listings(category_id);
+CREATE INDEX listings_boost_idx ON listings(boost_type, created_at DESC);
+CREATE INDEX listings_price_idx ON listings(price);
+
+CREATE TABLE auction_bids(
+    id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    listing_id  UUID REFERENCES listings(id) ON DELETE CASCADE NOT NULL,
+    user_id     UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    amount      INTEGER NOT NULL CHECK(amount > 0),
+    is_auto     BOOLEAN DEFAULT FALSE,
+    auto_max    INTEGER,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- KATEGÓRIÁK
-CREATE TABLE categories (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL,
-  icon TEXT,
-  parent_id INTEGER REFERENCES categories(id),
-  listing_count INTEGER DEFAULT 0
+CREATE INDEX auction_bids_listing_idx ON auction_bids(listing_id, amount DESC);
+
+CREATE TABLE message_threads(
+    id               UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    listing_id       UUID REFERENCES listings(id) ON DELETE SET NULL,
+    buyer_id         UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    seller_id        UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    last_message     TEXT,
+    last_message_at  TIMESTAMPTZ DEFAULT NOW(),
+    buyer_unread     INTEGER DEFAULT 0,
+    seller_unread    INTEGER DEFAULT 0,
+    is_archived_buyer   BOOLEAN DEFAULT FALSE,
+    is_archived_seller  BOOLEAN DEFAULT FALSE,
+    created_at       TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(listing_id, buyer_id)
 );
 
--- HIRDETÉSEK
-CREATE TABLE listings (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
-  title TEXT NOT NULL,
-  description TEXT,
-  price INTEGER NOT NULL,
-  negotiable BOOLEAN DEFAULT FALSE,
-  condition TEXT CHECK (condition IN ('new','like_new','good','used','for_parts')) DEFAULT 'good',
-  category_id INTEGER REFERENCES categories(id),
-  location TEXT,
-  zip TEXT,
-  shipping TEXT DEFAULT 'both',
-  shipping_cost INTEGER DEFAULT 0,
-  payment_methods TEXT[] DEFAULT ARRAY['cash'],
-  images TEXT[] DEFAULT ARRAY[]::TEXT[],
-  status TEXT CHECK (status IN ('active','sold','expired','draft','banned')) DEFAULT 'active',
-  boost_type TEXT CHECK (boost_type IN ('none','featured','premium','turbo')) DEFAULT 'none',
-  boost_until TIMESTAMPTZ,
-  views INTEGER DEFAULT 0,
-  watchers INTEGER DEFAULT 0,
-  is_auction BOOLEAN DEFAULT FALSE,
-  auction_start_price INTEGER,
-  auction_current_price INTEGER,
-  auction_end_time TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  expires_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '30 days'
+CREATE INDEX threads_buyer_idx  ON message_threads(buyer_id, last_message_at DESC);
+CREATE INDEX threads_seller_idx ON message_threads(seller_id, last_message_at DESC);
+
+CREATE TABLE messages(
+    id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    thread_id   UUID REFERENCES message_threads(id) ON DELETE CASCADE NOT NULL,
+    sender_id   UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    content     TEXT NOT NULL CHECK(char_length(content) BETWEEN 1 AND 2000),
+    is_read     BOOLEAN DEFAULT FALSE,
+    read_at     TIMESTAMPTZ,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- AUKCIÓS LICITEK
-CREATE TABLE auction_bids (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  listing_id UUID REFERENCES listings(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  amount INTEGER NOT NULL,
-  is_auto BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE INDEX messages_thread_idx ON messages(thread_id, created_at);
+
+CREATE TABLE reviews(
+    id           UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    reviewer_id  UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    reviewed_id  UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    listing_id   UUID REFERENCES listings(id) ON DELETE SET NULL,
+    rating       INTEGER CHECK(rating BETWEEN 1 AND 5) NOT NULL,
+    comment      TEXT CHECK(char_length(comment) <= 1000),
+    type         TEXT CHECK(type IN('buyer', 'seller')) DEFAULT 'seller',
+    created_at   TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(reviewer_id, listing_id)
 );
 
--- ÜZENETEK (szálak)
-CREATE TABLE message_threads (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  listing_id UUID REFERENCES listings(id) ON DELETE SET NULL,
-  buyer_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  seller_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  last_message TEXT,
-  last_message_at TIMESTAMPTZ DEFAULT NOW(),
-  buyer_unread INTEGER DEFAULT 0,
-  seller_unread INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE favorites(
+    id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id     UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    listing_id  UUID REFERENCES listings(id) ON DELETE CASCADE NOT NULL,
+    created_at  TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, listing_id)
 );
 
--- ÜZENETEK
-CREATE TABLE messages (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  thread_id UUID REFERENCES message_threads(id) ON DELETE CASCADE,
-  sender_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  content TEXT NOT NULL,
-  is_read BOOLEAN DEFAULT FALSE,
-  read_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE INDEX favorites_user_idx ON favorites(user_id);
+
+CREATE TABLE reports(
+    id           UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    reporter_id  UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    listing_id   UUID REFERENCES listings(id) ON DELETE CASCADE,
+    reported_user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    reason       TEXT NOT NULL,
+    details      TEXT CHECK(char_length(details) <= 1000),
+    status       TEXT DEFAULT 'pending' CHECK(status IN('pending', 'reviewed', 'resolved', 'dismissed')),
+    admin_note   TEXT,
+    resolved_by  UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    resolved_at  TIMESTAMPTZ,
+    created_at   TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ÉRTÉKELÉSEK
-CREATE TABLE reviews (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  reviewer_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  reviewed_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  listing_id UUID REFERENCES listings(id) ON DELETE SET NULL,
-  rating INTEGER CHECK (rating BETWEEN 1 AND 5) NOT NULL,
-  comment TEXT,
-  type TEXT CHECK (type IN ('buyer','seller')) DEFAULT 'buyer',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(reviewer_id, listing_id)
+CREATE TABLE payments(
+    id                 UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    order_id           TEXT UNIQUE NOT NULL,
+    listing_id         UUID REFERENCES listings(id) ON DELETE SET NULL,
+    buyer_id           UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    seller_id          UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    amount             INTEGER NOT NULL CHECK(amount > 0),
+    platform_fee       INTEGER DEFAULT 0,
+    seller_amount      INTEGER,
+    method             TEXT NOT NULL CHECK(method IN('barion', 'paypal', 'bank_transfer', 'cash')),
+    status             TEXT CHECK(status IN('pending', 'paid', 'refunded', 'failed', 'expired')) DEFAULT 'pending',
+    transaction_id     TEXT,
+    barion_payment_id  TEXT,
+    paypal_order_id    TEXT,
+    paypal_capture_id  TEXT,
+    bank_reference     TEXT,
+    refund_reason      TEXT,
+    refunded_at        TIMESTAMPTZ,
+    created_at         TIMESTAMPTZ DEFAULT NOW(),
+    updated_at         TIMESTAMPTZ DEFAULT NOW()
 );
 
--- KEDVENCEK
-CREATE TABLE favorites (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  listing_id UUID REFERENCES listings(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(user_id, listing_id)
+CREATE INDEX payments_buyer_idx  ON payments(buyer_id);
+CREATE INDEX payments_seller_idx ON payments(seller_id);
+CREATE INDEX payments_status_idx ON payments(status);
+
+CREATE TABLE boost_orders(
+    id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    listing_id  UUID REFERENCES listings(id) ON DELETE CASCADE NOT NULL,
+    user_id     UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    boost_type  TEXT NOT NULL CHECK(boost_type IN('featured', 'premium', 'turbo')),
+    amount      INTEGER NOT NULL CHECK(amount > 0),
+    method      TEXT,
+    status      TEXT DEFAULT 'pending' CHECK(status IN('pending', 'active', 'expired', 'cancelled')),
+    starts_at   TIMESTAMPTZ DEFAULT NOW(),
+    ends_at     TIMESTAMPTZ NOT NULL,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- BEJELENTÉSEK
-CREATE TABLE reports (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  reporter_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  listing_id UUID REFERENCES listings(id) ON DELETE CASCADE,
-  reason TEXT NOT NULL,
-  details TEXT,
-  status TEXT DEFAULT 'pending',
-  created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE notifications(
+    id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id     UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    type        TEXT NOT NULL CHECK(type IN('message', 'sale', 'purchase', 'review', 'favorite', 'boost', 'system', 'refund', 'auction', 'referral')),
+    title       TEXT,
+    message     TEXT NOT NULL CHECK(char_length(message) <= 500),
+    data        JSONB DEFAULT '{}':: JSONB,
+    is_read     BOOLEAN DEFAULT FALSE,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- FIZETÉSEK
-CREATE TABLE payments (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  listing_id UUID REFERENCES listings(id) ON DELETE SET NULL,
-  buyer_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  seller_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  amount INTEGER NOT NULL,
-  method TEXT NOT NULL,
-  status TEXT CHECK (status IN ('pending','paid','refunded','failed')) DEFAULT 'pending',
-  transaction_id TEXT,
-  barion_payment_id TEXT,
-  paypal_order_id TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+CREATE INDEX notifications_user_idx ON notifications(user_id, is_read, created_at DESC);
+
+CREATE TABLE saved_searches(
+    id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id       UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    name          TEXT,
+    query         TEXT,
+    category_id   INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+    min_price     INTEGER,
+    max_price     INTEGER,
+    location      TEXT,
+    condition     TEXT,
+    notify_email  BOOLEAN DEFAULT TRUE,
+    notify_push   BOOLEAN DEFAULT FALSE,
+    last_notified TIMESTAMPTZ,
+    created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
--- KIEMELÉSI RENDELÉSEK
-CREATE TABLE boost_orders (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  listing_id UUID REFERENCES listings(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  boost_type TEXT NOT NULL,
-  amount INTEGER NOT NULL,
-  method TEXT,
-  status TEXT DEFAULT 'pending',
-  starts_at TIMESTAMPTZ DEFAULT NOW(),
-  ends_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE listing_views(
+    id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    listing_id  UUID REFERENCES listings(id) ON DELETE CASCADE NOT NULL,
+    viewer_id   UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    ip_hash     TEXT,
+    user_agent  TEXT,
+    viewed_at   TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ÉRTESÍTÉSEK
-CREATE TABLE notifications (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  type TEXT NOT NULL,
-  title TEXT,
-  message TEXT NOT NULL,
-  data JSONB,
-  is_read BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE INDEX listing_views_listing_idx ON listing_views(listing_id, viewed_at DESC);
+
+CREATE TABLE referrals(
+    id             UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    referrer_id    UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    referred_id    UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    status         TEXT DEFAULT 'pending' CHECK(status IN('pending', 'completed', 'cancelled')),
+    reward_points  INTEGER DEFAULT 100,
+    paid_at        TIMESTAMPTZ,
+    created_at     TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(referred_id)
 );
 
--- MENTETT KERESÉSEK
-CREATE TABLE saved_searches (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  query TEXT,
-  category_id INTEGER REFERENCES categories(id),
-  min_price INTEGER,
-  max_price INTEGER,
-  location TEXT,
-  notify_email BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE loyalty_transactions(
+    id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id     UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    points      INTEGER NOT NULL,
+    reason      TEXT NOT NULL,
+    reference   TEXT,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- STATISZTIKA
-CREATE TABLE listing_views (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  listing_id UUID REFERENCES listings(id) ON DELETE CASCADE,
-  viewer_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
-  ip_hash TEXT,
-  viewed_at TIMESTAMPTZ DEFAULT NOW()
+CREATE INDEX loyalty_user_idx ON loyalty_transactions(user_id, created_at DESC);
+
+CREATE TABLE admin_logs(
+    id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    admin_id    UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    action      TEXT NOT NULL,
+    target_type TEXT,
+    target_id   TEXT,
+    details     JSONB DEFAULT '{}':: JSONB,
+    ip_address  TEXT,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- AFFILIATE
-CREATE TABLE referrals (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  referrer_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  referred_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  status TEXT DEFAULT 'pending',
-  reward_amount INTEGER DEFAULT 500,
-  paid_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE banned_words(
+    id         SERIAL PRIMARY KEY,
+    word       TEXT UNIQUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE processed_webhooks(
+    id           UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    webhook_id   TEXT UNIQUE NOT NULL,
+    source       TEXT NOT NULL,
+    processed_at TIMESTAMPTZ NOT NULL,
+    created_at   TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ============================================================
--- ROW LEVEL SECURITY (RLS) POLICIES
+    --2. RLS ENGEDÉLYEZÉS
 -- ============================================================
 
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE listings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE message_threads ENABLE ROW LEVEL SECURITY;
-ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
-ALTER TABLE favorites ENABLE ROW LEVEL SECURITY;
-ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
-ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
-ALTER TABLE saved_searches ENABLE ROW LEVEL SECURITY;
-ALTER TABLE auction_bids ENABLE ROW LEVEL SECURITY;
-ALTER TABLE boost_orders ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE profiles           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE listings           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE auction_bids       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE message_threads    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE messages           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reviews            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE favorites          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reports            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE boost_orders       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notifications      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE saved_searches     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE listing_views      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE referrals          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE loyalty_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_logs         ENABLE ROW LEVEL SECURITY;
 
--- Profiles: mindenki láthat, csak saját módosítható
-CREATE POLICY "Profiles are public" ON profiles FOR SELECT USING (true);
-CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+ALTER TABLE processed_webhooks ENABLE ROW LEVEL SECURITY;
+-- ============================================================
+    --3. RLS POLICY - K
+-- ============================================================
 
--- Listings: aktívak nyilvánosak, saját kezelhető
-CREATE POLICY "Active listings are public" ON listings FOR SELECT USING (status = 'active' OR auth.uid() = user_id);
-CREATE POLICY "Users can insert own listings" ON listings FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own listings" ON listings FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own listings" ON listings FOR DELETE USING (auth.uid() = user_id);
+    --PROFILES
+CREATE POLICY "profiles_public_read"
+  ON profiles FOR SELECT USING(true);
 
--- Messages: csak résztvevők láthatják
-CREATE POLICY "Thread participants can view messages" ON messages FOR SELECT USING (
-  EXISTS (SELECT 1 FROM message_threads mt WHERE mt.id = thread_id AND (mt.buyer_id = auth.uid() OR mt.seller_id = auth.uid()))
+CREATE POLICY "profiles_own_insert"
+  ON profiles FOR INSERT WITH CHECK(auth.uid() = id);
+
+CREATE POLICY "profiles_own_update"
+  ON profiles FOR UPDATE USING(auth.uid() = id)
+  WITH CHECK(auth.uid() = id AND is_admin = FALSE);
+
+--LISTINGS
+CREATE POLICY "listings_public_read"
+  ON listings FOR SELECT
+USING(status = 'active' OR auth.uid() = user_id);
+
+CREATE POLICY "listings_own_insert"
+  ON listings FOR INSERT
+  WITH CHECK(auth.uid() = user_id);
+
+CREATE POLICY "listings_own_update"
+  ON listings FOR UPDATE
+USING(auth.uid() = user_id)
+  WITH CHECK(auth.uid() = user_id);
+
+CREATE POLICY "listings_own_delete"
+  ON listings FOR DELETE
+USING(auth.uid() = user_id);
+
+--AUCTION BIDS
+CREATE POLICY "auction_bids_public_read"
+  ON auction_bids FOR SELECT USING(true);
+
+CREATE POLICY "auction_bids_own_insert"
+  ON auction_bids FOR INSERT
+  WITH CHECK(auth.uid() = user_id);
+
+--MESSAGE THREADS
+CREATE POLICY "threads_participant_read"
+  ON message_threads FOR SELECT
+USING(auth.uid() = buyer_id OR auth.uid() = seller_id);
+
+CREATE POLICY "threads_buyer_insert"
+  ON message_threads FOR INSERT
+  WITH CHECK(auth.uid() = buyer_id);
+
+CREATE POLICY "threads_participant_update"
+  ON message_threads FOR UPDATE
+USING(auth.uid() = buyer_id OR auth.uid() = seller_id);
+
+--MESSAGES
+CREATE POLICY "messages_participant_read"
+  ON messages FOR SELECT
+USING(
+    EXISTS(
+        SELECT 1 FROM message_threads mt
+      WHERE mt.id = thread_id
+        AND(mt.buyer_id = auth.uid() OR mt.seller_id = auth.uid())
+    )
 );
-CREATE POLICY "Authenticated users can send messages" ON messages FOR INSERT WITH CHECK (auth.uid() = sender_id);
 
--- Favorites: csak saját
-CREATE POLICY "Users manage own favorites" ON favorites FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "messages_own_insert"
+  ON messages FOR INSERT
+  WITH CHECK(
+    auth.uid() = sender_id AND
+    EXISTS(
+        SELECT 1 FROM message_threads mt
+      WHERE mt.id = thread_id
+        AND(mt.buyer_id = auth.uid() OR mt.seller_id = auth.uid())
+    )
+);
 
--- Reviews: mindenki láthat, csak saját küldhet
-CREATE POLICY "Reviews are public" ON reviews FOR SELECT USING (true);
-CREATE POLICY "Users can insert own reviews" ON reviews FOR INSERT WITH CHECK (auth.uid() = reviewer_id);
+--REVIEWS
+CREATE POLICY "reviews_public_read"
+  ON reviews FOR SELECT USING(true);
 
--- Notifications: csak saját
-CREATE POLICY "Users see own notifications" ON notifications FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "reviews_own_insert"
+  ON reviews FOR INSERT
+  WITH CHECK(auth.uid() = reviewer_id AND auth.uid() <> reviewed_id);
 
--- Payments: csak érintett felek
-CREATE POLICY "Payment parties can view" ON payments FOR SELECT USING (auth.uid() = buyer_id OR auth.uid() = seller_id);
+--FAVORITES
+CREATE POLICY "favorites_own_all"
+  ON favorites FOR ALL
+USING(auth.uid() = user_id)
+  WITH CHECK(auth.uid() = user_id);
+
+--REPORTS
+CREATE POLICY "reports_own_insert"
+  ON reports FOR INSERT
+  WITH CHECK(auth.uid() = reporter_id);
+
+CREATE POLICY "reports_own_read"
+  ON reports FOR SELECT
+USING(auth.uid() = reporter_id);
+
+--PAYMENTS
+CREATE POLICY "payments_parties_read"
+  ON payments FOR SELECT
+USING(auth.uid() = buyer_id OR auth.uid() = seller_id);
+
+CREATE POLICY "payments_buyer_insert"
+  ON payments FOR INSERT
+  WITH CHECK(auth.uid() = buyer_id);
+
+CREATE POLICY "payments_buyer_update"
+  ON payments FOR UPDATE
+USING(auth.uid() = buyer_id);
+
+--BOOST ORDERS
+CREATE POLICY "boost_own_all"
+  ON boost_orders FOR ALL
+USING(auth.uid() = user_id)
+  WITH CHECK(auth.uid() = user_id);
+
+--NOTIFICATIONS
+CREATE POLICY "notifications_own_all"
+  ON notifications FOR ALL
+USING(auth.uid() = user_id);
+
+--SAVED SEARCHES
+CREATE POLICY "saved_searches_own_all"
+  ON saved_searches FOR ALL
+USING(auth.uid() = user_id)
+  WITH CHECK(auth.uid() = user_id);
+
+--LISTING VIEWS
+CREATE POLICY "listing_views_insert_all"
+  ON listing_views FOR INSERT
+  WITH CHECK(true);
+
+CREATE POLICY "listing_views_own_read"
+  ON listing_views FOR SELECT
+USING(
+    viewer_id = auth.uid() OR
+    EXISTS(SELECT 1 FROM listings l WHERE l.id = listing_id AND l.user_id = auth.uid())
+);
+
+--REFERRALS
+CREATE POLICY "referrals_own_read"
+  ON referrals FOR SELECT
+USING(auth.uid() = referrer_id OR auth.uid() = referred_id);
+
+--LOYALTY TRANSACTIONS
+CREATE POLICY "loyalty_own_read"
+  ON loyalty_transactions FOR SELECT
+USING(auth.uid() = user_id);
+
+--ADMIN LOGS – csak admin olvashatja
+CREATE POLICY "admin_logs_admin_only"
+  ON admin_logs FOR ALL
+USING(
+    EXISTS(SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = TRUE)
+);
 
 -- ============================================================
--- FUNCTIONS & TRIGGERS
+    --4. FÜGGVÉNYEK
 -- ============================================================
 
--- Auto profil létrehozás regisztrációkor
+    --Új user profil automatikus létrehozása
 CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  base_username TEXT;
+  final_username TEXT;
+  counter INTEGER:= 0;
 BEGIN
-  INSERT INTO profiles (id, username, email, referral_code)
-  VALUES (
+base_username:= COALESCE(
+    NEW.raw_user_meta_data ->> 'username',
+    split_part(NEW.email, '@', 1)
+);
+base_username:= regexp_replace(base_username, '[^a-zA-Z0-9_]', '', 'g');
+  IF char_length(base_username) < 3 THEN
+base_username:= 'user' || substring(NEW.id:: text, 1, 6);
+  END IF;
+final_username:= base_username;
+
+--Egyedi username keresés
+LOOP
+    EXIT WHEN NOT EXISTS(SELECT 1 FROM profiles WHERE username = final_username);
+counter:= counter + 1;
+final_username:= base_username || counter:: text;
+  END LOOP;
+
+  INSERT INTO profiles(id, username, full_name, email, referral_code)
+VALUES(
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    final_username,
+    COALESCE(NEW.raw_user_meta_data ->> 'full_name', final_username),
     NEW.email,
-    upper(substring(gen_random_uuid()::text, 1, 8))
-  );
+    upper(substring(gen_random_uuid():: text, 1, 8))
+);
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
--- Hirdetés megtekintés számlálás
-CREATE OR REPLACE FUNCTION increment_listing_views(listing_id UUID)
-RETURNS VOID AS $$
+-- -------------------------------------------------------
+    --Loyalty pontok hozzáadása(tranzakció - biztos)
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION add_loyalty_points(
+        p_user_id UUID,
+        p_points  INTEGER,
+        p_reason  TEXT,
+        p_reference TEXT DEFAULT NULL
+    )
+RETURNS INTEGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  new_points INTEGER;
+  new_level  TEXT;
 BEGIN
-  UPDATE listings SET views = views + 1 WHERE id = listing_id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Értékelés átlag frissítés
-CREATE OR REPLACE FUNCTION get_user_rating(user_id UUID)
-RETURNS NUMERIC AS $$
-  SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE reviewed_id = user_id;
-$$ LANGUAGE sql SECURITY DEFINER;
-
--- Hirdetés lejárat kezelés
-CREATE OR REPLACE FUNCTION expire_old_listings()
-RETURNS VOID AS $$
-BEGIN
-  UPDATE listings SET status = 'expired'
-  WHERE status = 'active' AND expires_at < NOW();
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Kategória szám frissítés
-CREATE OR REPLACE FUNCTION update_category_count()
-RETURNS TRIGGER AS $$
-BEGIN
-  UPDATE categories SET listing_count = (
-    SELECT COUNT(*) FROM listings WHERE category_id = NEW.category_id AND status = 'active'
-  ) WHERE id = NEW.category_id;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_cat_count AFTER INSERT OR UPDATE OR DELETE ON listings
-FOR EACH ROW EXECUTE FUNCTION update_category_count();
-
--- Loyalty pontok hozzáadása
-CREATE OR REPLACE FUNCTION add_loyalty_points(user_id UUID, points INTEGER, reason TEXT)
-RETURNS VOID AS $$
-DECLARE new_points INTEGER;
-BEGIN
-  UPDATE profiles SET loyalty_points = loyalty_points + points WHERE id = user_id
+  UPDATE profiles
+    SET loyalty_points = loyalty_points + p_points,
+    updated_at = NOW()
+  WHERE id = p_user_id
   RETURNING loyalty_points INTO new_points;
-  -- Szint frissítés
-  UPDATE profiles SET loyalty_level = CASE
+
+  IF NOT FOUND THEN RETURN 0; END IF;
+
+new_level:= CASE
     WHEN new_points >= 5000 THEN 'platinum'
     WHEN new_points >= 2000 THEN 'gold'
-    WHEN new_points >= 500 THEN 'silver'
+    WHEN new_points >= 500  THEN 'silver'
     ELSE 'bronze'
-  END WHERE id = user_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Alapkategóriák feltöltése
-INSERT INTO categories (name, slug, icon) VALUES
-('Elektronika', 'elektronika', '📱'),
-('Ruha & Divat', 'ruha-divat', '👗'),
-('Járművek', 'jarmu', '🚗'),
-('Ingatlan', 'ingatlan', '🏠'),
-('Sport & Szabadidő', 'sport', '⚽'),
-('Ház & Kert', 'haz-kert', '🛋'),
-('Könyvek & Játékok', 'konyvek', '📚'),
-('Gyerek', 'gyerek', '🧸'),
-('Állatoknak', 'allatok', '🐾'),
-('Munka & Szolgáltatás', 'munka', '💼');
-
--- Alkategóriák
-INSERT INTO categories (name, slug, icon, parent_id) VALUES
-('Mobiltelefonok', 'mobil', '📱', 1),
-('Laptopok', 'laptop', '💻', 1),
-('Táblagépek', 'tablet', '📟', 1),
-('TV & Hangszórók', 'tv', '📺', 1),
-('Fényképezőgépek', 'fenykep', '📷', 1),
-('Konzolok', 'konzol', '🎮', 1),
-('Női ruházat', 'noi-ruha', '👗', 2),
-('Férfi ruházat', 'ferfi-ruha', '👔', 2),
-('Cipők', 'cipok', '👟', 2),
-('Táskák', 'taskak', '👜', 2),
-('Személyautók', 'szemelya', '🚗', 3),
-('Motorkerékpárok', 'motor', '🏍️', 3),
-('Kerékpárok', 'kerekpar', '🚲', 3),
-('Eladó lakások', 'elado-lakas', '🏢', 4),
-('Kiadó lakások', 'kiado-lakas', '🏘️', 4),
-('Bútorok', 'butorok', '🛋', 6),
-('Háztartási gépek', 'hzt-gepek', '🫙', 6);
-*/
-
-// ============================================================
-// 2. SUPABASE CLIENT KONFIGURÁCIÓ
-// ============================================================
-
-const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
-
-// Supabase CDN betöltése
-(function loadSupabase() {
-  const s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.0/supabase-js.min.js';
-  s.onload = () => {
-    window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-      }
-    });
-    initSupabase();
-  };
-  document.head.appendChild(s);
-})();
-
-// ============================================================
-// 3. INICIALIZÁLÁS
-// ============================================================
-
-async function initSupabase() {
-  // Auth állapot figyelés
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-      window.currentUser = session.user;
-      await loadCurrentUserProfile();
-      updateUIForLoggedInUser();
-      await loadListingsFromDB();
-      await loadNotificationsFromDB();
-    } else if (event === 'SIGNED_OUT') {
-      window.currentUser = null;
-      window.currentProfile = null;
-      updateUIForLoggedOutUser();
-      await loadListingsFromDB();
-    }
-  });
-
-  // Meglévő session ellenőrzés
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    window.currentUser = session.user;
-    await loadCurrentUserProfile();
-    updateUIForLoggedInUser();
-  }
-
-  // Hirdetések betöltése
-  await loadListingsFromDB();
-
-  // Realtime feliratkozások
-  setupRealtimeSubscriptions();
-}
-
-// ============================================================
-// 4. AUTHENTIKÁCIÓ
-// ============================================================
-
-async function doLogin() {
-  const email = document.querySelector('#loginModal input[type="email"]').value;
-  const password = document.querySelector('#loginModal input[type="password"]').value;
-
-  if (!email || !password) { showToast('Töltsd ki az összes mezőt!', 'error'); return; }
-
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
-
-  if (error) {
-    const msgs = {
-      'Invalid login credentials': 'Hibás e-mail vagy jelszó!',
-      'Email not confirmed': 'Erősítsd meg az e-mail címed!',
-      'Too many requests': 'Túl sok próbálkozás. Várj egy kicsit!'
-    };
-    showToast(msgs[error.message] || error.message, 'error');
-    return;
-  }
-
-  closeModal('loginModal');
-  showToast('✅ Sikeres bejelentkezés! Üdv, ' + (data.user.email.split('@')[0]) + '!', 'success');
-  launchConfetti();
-}
-
-async function doRegister() {
-  const inputs = document.querySelectorAll('#registerModal input');
-  const firstName = inputs[0].value, lastName = inputs[1].value;
-  const username = inputs[2].value, email = inputs[3].value;
-  const password = inputs[4].value, passwordConfirm = inputs[5].value;
-  const phone = inputs[6].value;
-  const termsAccepted = document.querySelector('#registerModal input[type="checkbox"]').checked;
-
-  if (!firstName || !lastName || !username || !email || !password) {
-    showToast('Töltsd ki az összes kötelező mezőt!', 'error'); return;
-  }
-  if (password !== passwordConfirm) {
-    showToast('A jelszavak nem egyeznek!', 'error'); return;
-  }
-  if (password.length < 8) {
-    showToast('A jelszó legalább 8 karakter legyen!', 'error'); return;
-  }
-  if (!termsAccepted) {
-    showToast('El kell fogadnod az ÁSZF-et!', 'error'); return;
-  }
-
-  // Felhasználónév ellenőrzés
-  const { data: existing } = await sb.from('profiles').select('username').eq('username', username).single();
-  if (existing) { showToast('Ez a felhasználónév már foglalt!', 'error'); return; }
-
-  const { data, error } = await sb.auth.signUp({
-    email, password,
-    options: {
-      data: { username, full_name: lastName + ' ' + firstName, phone }
-    }
-  });
-
-  if (error) { showToast(error.message, 'error'); return; }
-
-  // Referral kezelés
-  const urlParams = new URLSearchParams(window.location.search);
-  const refCode = urlParams.get('ref');
-  if (refCode) {
-    const { data: referrer } = await sb.from('profiles').select('id').eq('referral_code', refCode).single();
-    if (referrer) {
-      await sb.from('referrals').insert({ referrer_id: referrer.id, referred_id: data.user.id });
-      await sb.rpc('add_loyalty_points', { user_id: referrer.id, points: 100, reason: 'referral' });
-    }
-  }
-
-  closeModal('registerModal');
-  showToast('✅ Sikeres regisztráció! Ellenőrizd az e-mailed a megerősítéshez.', 'success');
-}
-
-async function signInWithGoogle() {
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin }
-  });
-  if (error) showToast(error.message, 'error');
-}
-
-async function signInWithFacebook() {
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: 'facebook',
-    options: { redirectTo: window.location.origin }
-  });
-  if (error) showToast(error.message, 'error');
-}
-
-async function doLogout() {
-  await sb.auth.signOut();
-  showToast('👋 Sikeres kijelentkezés!', 'info');
-}
-
-async function forgotPassword(email) {
-  const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + '?reset=true'
-  });
-  if (error) showToast(error.message, 'error');
-  else showToast('📧 Jelszó-visszaállító e-mail elküldve!', 'success');
-}
-
-// ============================================================
-// 5. PROFIL KEZELÉS
-// ============================================================
-
-async function loadCurrentUserProfile() {
-  if (!window.currentUser) return;
-  const { data, error } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-  if (!error) {
-    window.currentProfile = data;
-    document.getElementById('profileName').textContent = data.full_name || data.username;
-    document.getElementById('profileAvatar').textContent = (data.full_name || data.username).substring(0, 2).toUpperCase();
-    if (data.loyalty_points) document.getElementById('loyaltyPoints').textContent = data.loyalty_points.toLocaleString('hu-HU');
-  }
-}
-
-async function saveProfile() {
-  if (!window.currentUser) { showModal('loginModal'); return; }
-  const inputs = document.querySelectorAll('#pt-info .form-control');
-  const updates = {
-    full_name: inputs[1].value + ' ' + inputs[0].value,
-    email: inputs[2].value,
-    phone: inputs[3].value,
-    location: inputs[4].value,
-    updated_at: new Date().toISOString()
-  };
-  const { error } = await sb.from('profiles').update(updates).eq('id', currentUser.id);
-  if (error) showToast(error.message, 'error');
-  else { showToast('✅ Profil mentve!', 'success'); await loadCurrentUserProfile(); }
-}
-
-async function uploadAvatar(file) {
-  if (!window.currentUser) return;
-  const ext = file.name.split('.').pop();
-  const path = `avatars/${currentUser.id}.${ext}`;
-  const { error: uploadError } = await sb.storage.from('avatars').upload(path, file, { upsert: true });
-  if (uploadError) { showToast(uploadError.message, 'error'); return; }
-  const { data: { publicUrl } } = sb.storage.from('avatars').getPublicUrl(path);
-  await sb.from('profiles').update({ avatar_url: publicUrl }).eq('id', currentUser.id);
-  document.getElementById('profileAvatar').innerHTML = `<img src="${publicUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-  showToast('✅ Profilkép frissítve!', 'success');
-  await sb.rpc('add_loyalty_points', { user_id: currentUser.id, points: 20, reason: 'avatar_upload' });
-}
-
-// ============================================================
-// 6. HIRDETÉSEK
-// ============================================================
-
-async function loadListingsFromDB() {
-  const { data, error } = await sb
-    .from('listings')
-    .select(`*, profiles(username, is_verified, loyalty_level), categories(name, icon)`)
-    .eq('status', 'active')
-    .order('boost_type', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(50);
-
-  if (error) { console.error('Listings load error:', error); return; }
-
-  if (data && data.length > 0) {
-    // Konvertálás a frontend formátumra
-    window.sampleListings = data.map(l => ({
-      id: l.id,
-      title: l.title,
-      price: l.price,
-      cat: l.categories?.name || 'Egyéb',
-      loc: l.location || 'Ismeretlen',
-      date: timeAgo(l.created_at),
-      img: l.images?.[0] || '📦',
-      condition: conditionLabel(l.condition),
-      seller: l.profiles?.username || 'Ismeretlen',
-      rating: 4.5,
-      views: l.views,
-      premium: l.boost_type === 'premium' || l.boost_type === 'turbo',
-      featured: l.boost_type === 'featured',
-      negotiable: l.negotiable,
-      description: l.description,
-      dbId: l.id
-    }));
-    window.currentListings = [...window.sampleListings];
-    renderListings();
-  }
-}
-
-async function submitListing() {
-  if (!window.currentUser) { showModal('loginModal'); showToast('Bejelentkezés szükséges!', 'error'); return; }
-
-  const title = document.getElementById('nl-title').value;
-  const price = document.getElementById('nl-price').value;
-  const cat = document.getElementById('nl-cat').value;
-  const desc = document.getElementById('nl-desc').value;
-  const loc = document.getElementById('nl-loc').value;
-  const zip = document.getElementById('nl-zip').value;
-  const condition = conditionValue(document.getElementById('nl-condition').value);
-  const negotiable = document.getElementById('nl-negotiable').checked;
-  const shipping = document.getElementById('nl-shipping').value;
-  const shipCost = document.getElementById('nl-shipcost').value;
-
-  if (!title || !price || !cat) { showToast('Tölts ki minden kötelező mezőt! ⚠️', 'error'); return; }
-
-  // Képek feltöltése Supabase Storage-ba
-  let imageUrls = [];
-  for (const imgData of uploadedImgs) {
-    const url = await uploadListingImage(imgData);
-    if (url) imageUrls.push(url);
-  }
-
-  // Kategória ID keresés
-  const { data: catData } = await sb.from('categories').select('id').ilike('name', `%${cat}%`).single();
-
-  const { data, error } = await sb.from('listings').insert({
-    user_id: currentUser.id,
-    title, price: parseInt(price),
-    description: desc,
-    location: loc, zip,
-    condition,
-    negotiable,
-    category_id: catData?.id,
-    images: imageUrls,
-    shipping,
-    shipping_cost: parseInt(shipCost) || 0,
-    status: 'active'
-  }).select().single();
-
-  if (error) { showToast(error.message, 'error'); return; }
-
-  // Loyalty pont
-  await sb.rpc('add_loyalty_points', { user_id: currentUser.id, points: 10, reason: 'listing_created' });
-
-  closeModal('newListingModal');
-  uploadedImgs = [];
-  launchConfetti();
-  showToast('🎉 Hirdetés sikeresen feladva!', 'success');
-  await loadListingsFromDB();
-}
-
-async function uploadListingImage(dataUrl) {
-  try {
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
-    const filename = `listings/${currentUser.id}/${Date.now()}.jpg`;
-    const { error } = await sb.storage.from('listing-images').upload(filename, blob, { contentType: 'image/jpeg' });
-    if (error) return null;
-    const { data: { publicUrl } } = sb.storage.from('listing-images').getPublicUrl(filename);
-    return publicUrl;
-  } catch { return null; }
-}
-
-async function saveEditListing() {
-  if (!window.currentUser || !editingId) return;
-  const updates = {
-    title: document.getElementById('edit-title').value,
-    price: parseInt(document.getElementById('edit-price').value),
-    condition: conditionValue(document.getElementById('edit-condition').value),
-    location: document.getElementById('edit-loc').value,
-    negotiable: document.getElementById('edit-negotiable').checked,
-    status: document.getElementById('edit-sold').checked ? 'sold' : 'active',
-    updated_at: new Date().toISOString()
-  };
-  const { error } = await sb.from('listings').update(updates).eq('id', editingId).eq('user_id', currentUser.id);
-  if (error) showToast(error.message, 'error');
-  else { closeModal('editListingModal'); showToast('✅ Hirdetés frissítve!', 'success'); await loadListingsFromDB(); }
-}
-
-async function deleteListing() {
-  if (!confirm('Biztosan törlöd a hirdetést?')) return;
-  const { error } = await sb.from('listings').delete().eq('id', editingId).eq('user_id', currentUser.id);
-  if (error) showToast(error.message, 'error');
-  else { closeModal('editListingModal'); showToast('🗑️ Hirdetés törölve', 'info'); await loadListingsFromDB(); }
-}
-
-async function incrementViews(listingId) {
-  await sb.rpc('increment_listing_views', { listing_id: listingId });
-}
-
-// ============================================================
-// 7. KEDVENCEK
-// ============================================================
-
-async function toggleWish(id, btn) {
-  if (!window.currentUser) { showModal('loginModal'); showToast('Bejelentkezés szükséges!', 'error'); return; }
-
-  if (wishlist.has(id)) {
-    await sb.from('favorites').delete().eq('user_id', currentUser.id).eq('listing_id', id);
-    wishlist.delete(id);
-    btn.textContent = '🤍';
-    showToast('Eltávolítva a kedvencekből', 'info');
-  } else {
-    await sb.from('favorites').insert({ user_id: currentUser.id, listing_id: id });
-    wishlist.add(id);
-    btn.textContent = '❤️';
-    showToast('Hozzáadva a kedvencekhez! ❤️', 'success');
-  }
-}
-
-async function loadFavoritesFromDB() {
-  if (!window.currentUser) return;
-  const { data } = await sb.from('favorites').select('listing_id').eq('user_id', currentUser.id);
-  if (data) data.forEach(f => wishlist.add(f.listing_id));
-}
-
-// ============================================================
-// 8. ÜZENETEK
-// ============================================================
-
-async function loadThreadsFromDB() {
-  if (!window.currentUser) return;
-  const { data } = await sb
-    .from('message_threads')
-    .select(`*, listings(title), buyer:profiles!buyer_id(username), seller:profiles!seller_id(username)`)
-    .or(`buyer_id.eq.${currentUser.id},seller_id.eq.${currentUser.id}`)
-    .order('last_message_at', { ascending: false });
-
-  if (!data) return;
-  const list = document.getElementById('msgList');
-  if (!list) return;
-  list.innerHTML = data.map((t, i) => {
-    const other = t.buyer_id === currentUser.id ? t.seller?.username : t.buyer?.username;
-    const unread = t.buyer_id === currentUser.id ? t.buyer_unread : t.seller_unread;
-    return `<div class="msg-item ${unread > 0 ? 'unread' : ''}" onclick="openThreadChat('${t.id}','${other}')">
-      <div class="avatar-sm">${(other||'?').substring(0,2).toUpperCase()}</div>
-      <div class="msg-content">
-        <div class="msg-from">${other || 'Ismeretlen'}</div>
-        <div class="msg-preview">${t.last_message || '...'}</div>
-      </div>
-      <div class="msg-time">${timeAgo(t.last_message_at)}</div>
-    </div>`;
-  }).join('');
-}
-
-async function openThreadChat(threadId, otherUser) {
-  document.getElementById('chatWith').textContent = otherUser;
-  window.activeThreadId = threadId;
-
-  const { data } = await sb.from('messages').select('*, profiles(username)').eq('thread_id', threadId).order('created_at');
-  const chat = document.getElementById('chatMessages');
-  if (!chat || !data) return;
-
-  chat.innerHTML = data.map(m => {
-    const isOwn = m.sender_id === currentUser?.id;
-    const read = m.is_read ? '<span class="read-receipt">✓✓</span>' : '<span style="opacity:0.5;font-size:0.7rem">✓</span>';
-    return `<div class="chat-msg ${isOwn ? 'own' : ''}">
-      <div class="chat-bubble">${m.content}</div>
-      <div style="font-size:0.7rem;color:var(--text2);margin-top:3px;${isOwn ? 'text-align:right' : ''}">${timeAgo(m.created_at)} ${isOwn ? read : ''}</div>
-    </div>`;
-  }).join('');
-  chat.scrollTop = chat.scrollHeight;
-
-  // Olvasottnak jelölés
-  await sb.from('messages').update({ is_read: true, read_at: new Date().toISOString() })
-    .eq('thread_id', threadId).neq('sender_id', currentUser?.id);
-}
-
-async function sendMsg() {
-  const inp = document.getElementById('chatInput');
-  const v = inp.value.trim();
-  if (!v) return;
-  if (!window.currentUser) { showModal('loginModal'); return; }
-
-  if (window.activeThreadId) {
-    const { error } = await sb.from('messages').insert({
-      thread_id: activeThreadId,
-      sender_id: currentUser.id,
-      content: v
-    });
-    if (!error) {
-      await sb.from('message_threads').update({ last_message: v, last_message_at: new Date().toISOString() }).eq('id', activeThreadId);
-      const chat = document.getElementById('chatMessages');
-      chat.innerHTML += `<div class="chat-msg own"><div class="chat-bubble">${v}</div><div style="font-size:0.7rem;color:var(--text2);margin-top:3px;text-align:right">Most <span style="opacity:0.5;font-size:0.7rem">✓</span></div></div>`;
-      chat.scrollTop = chat.scrollHeight;
-      setTimeout(async () => {
-        await sb.from('messages').update({ is_read: true }).eq('thread_id', activeThreadId).eq('sender_id', currentUser.id).order('created_at', { ascending: false }).limit(1);
-        const receipts = chat.querySelectorAll('.read-receipt');
-        if (receipts.length) receipts[receipts.length - 1].style.color = '#4fc3f7';
-      }, 1500);
-    }
-  }
-  inp.value = '';
-}
-
-async function startConversation(listingId, sellerId) {
-  if (!window.currentUser) { showModal('loginModal'); return; }
-  if (sellerId === currentUser.id) { showToast('Saját hirdetésedre nem küldhetsz üzenetet!', 'error'); return; }
-
-  // Meglévő szál keresés
-  const { data: existing } = await sb.from('message_threads')
-    .select('id').eq('listing_id', listingId).eq('buyer_id', currentUser.id).single();
-
-  let threadId = existing?.id;
-  if (!threadId) {
-    const { data: thread } = await sb.from('message_threads').insert({
-      listing_id: listingId, buyer_id: currentUser.id, seller_id: sellerId
-    }).select().single();
-    threadId = thread?.id;
-  }
-
-  window.activeThreadId = threadId;
-  showModal('messagesModal');
-  await loadThreadsFromDB();
-}
-
-// ============================================================
-// 9. ÉRTÉKELÉSEK
-// ============================================================
-
-async function submitReview() {
-  if (!window.currentUser) { showModal('loginModal'); return; }
-  if (!selectedStar) { showToast('Válassz csillagot! ⭐', 'error'); return; }
-
-  const comment = document.querySelector('#reviewModal textarea').value;
-  const type = document.querySelector('#reviewModal input[name="revType"]:checked')?.value || 'buyer';
-
-  const { error } = await sb.from('reviews').insert({
-    reviewer_id: currentUser.id,
-    reviewed_id: window.reviewTargetId,
-    listing_id: window.reviewListingId,
-    rating: selectedStar,
-    comment,
-    type
-  });
-
-  if (error) { showToast(error.message, 'error'); return; }
-
-  await sb.rpc('add_loyalty_points', { user_id: currentUser.id, points: 5, reason: 'review_written' });
-  closeModal('reviewModal');
-  showToast('✅ Értékelés beküldve! Köszönjük!', 'success');
-}
-
-async function loadReviewsForUser(userId) {
-  const { data } = await sb.from('reviews')
-    .select('*, reviewer:profiles!reviewer_id(username)')
-    .eq('reviewed_id', userId)
-    .order('created_at', { ascending: false });
-  return data || [];
-}
-
-// ============================================================
-// 10. BEJELENTÉSEK
-// ============================================================
-
-async function submitReport() {
-  if (!window.currentUser) { showModal('loginModal'); return; }
-  const reason = document.getElementById('reportReason').value;
-  const details = document.querySelector('#reportModal textarea').value;
-
-  await sb.from('reports').insert({
-    reporter_id: currentUser.id,
-    listing_id: window.reportListingId,
-    reason, details
-  });
-
-  closeModal('reportModal');
-  showToast('🚨 Bejelentés elküldve! Hamarosan kivizsgáljuk.', 'success');
-}
-
-// ============================================================
-// 11. FIZETÉS – BARION + PAYPAL API HÍVÁSOK
-// ============================================================
-
-async function processPayment() {
-  if (!window.currentUser) { showModal('loginModal'); return; }
-
-  const selectedMethod = document.querySelector('#paymentModal .payment-option.selected');
-  if (!selectedMethod) { showToast('Válassz fizetési módot!', 'error'); return; }
-
-  const method = selectedMethod.querySelector('.pay-name')?.textContent?.toLowerCase() || 'unknown';
-  const listingId = window.paymentListingId;
-  const amount = window.paymentAmount || 0;
-  const listing = sampleListings.find(l => l.id == listingId);
-
-  if (!listing) { showToast('Hirdetés nem található!', 'error'); return; }
-
-  // Fizetési rekord létrehozása Supabase-ben
-  const orderId = 'PT-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-
-  const { data: payment, error } = await sb.from('payments').insert({
-    order_id: orderId,
-    listing_id: listingId,
-    buyer_id: currentUser.id,
-    seller_id: window.paymentSellerId,
-    amount,
-    method,
-    status: 'pending'
-  }).select().single();
-
-  if (error) { showToast('Hiba a fizetés indításakor: ' + error.message, 'error'); return; }
-
-  showToast('💳 Fizetés indítása...', 'info');
-
-  if (method.includes('barion')) {
-    await startBarionPayment(orderId, amount, listing, payment.id);
-  } else if (method.includes('paypal')) {
-    await startPayPalPayment(orderId, amount, listing, payment.id);
-  } else if (method.includes('banki') || method.includes('utalás')) {
-    showBankTransferInfo(orderId, amount);
-  } else {
-    // Készpénz
-    closeModal('paymentModal');
-    launchConfetti();
-    showToast('✅ Rendelés leadva! Egyeztess az eladóval a személyes átadásról.', 'success');
-  }
-}
-
-// ============================================================
-// BARION FIZETÉS INDÍTÁSA
-// ============================================================
-async function startBarionPayment(orderId, amount, listing, paymentDbId) {
-  try {
-    const response = await fetch('/api/barion-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'start',
-        orderId,
-        amount,
-        buyerEmail: currentUser.email,
-        itemName: listing.title,
-        itemDescription: listing.description || listing.title,
-        redirectUrl: window.location.origin + '?payment=success&orderId=' + orderId,
-        callbackUrl: window.location.origin + '/api/payment-webhook'
-      })
-    });
-
-    const data = await response.json();
-
-    if (!data.success) {
-      showToast('Barion hiba: ' + (data.errors?.[0] || data.error), 'error');
-      return;
-    }
-
-    // Barion Payment ID mentése
-    await sb.from('payments').update({ barion_payment_id: data.paymentId }).eq('id', paymentDbId);
-
-    // Átirányítás a Barion fizetési oldalra
-    closeModal('paymentModal');
-    showToast('🔄 Átirányítás a Barion biztonságos fizetési oldalra...', 'info');
-    setTimeout(() => { window.location.href = data.redirectUrl; }, 1500);
-
-  } catch (err) {
-    showToast('Barion kapcsolódási hiba: ' + err.message, 'error');
-  }
-}
-
-// ============================================================
-// PAYPAL FIZETÉS INDÍTÁSA
-// ============================================================
-async function startPayPalPayment(orderId, amount, listing, paymentDbId) {
-  try {
-    const response = await fetch('/api/paypal-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'create',
-        orderId,
-        amount,
-        buyerEmail: currentUser.email,
-        itemName: listing.title,
-        itemDescription: listing.description || listing.title,
-        returnUrl: window.location.origin + '?payment=success&orderId=' + orderId,
-        cancelUrl: window.location.origin + '?payment=cancelled'
-      })
-    });
-
-    const data = await response.json();
-
-    if (!data.success) {
-      showToast('PayPal hiba: ' + data.error, 'error');
-      return;
-    }
-
-    // PayPal Order ID mentése
-    await sb.from('payments').update({ paypal_order_id: data.orderId }).eq('id', paymentDbId);
-
-    // PayPal átirányítás
-    closeModal('paymentModal');
-    showToast('🔄 Átirányítás a PayPal fizetési oldalra...', 'info');
-
-    // Ha PayPal JS SDK elérhető, abban nyitjuk meg
-    if (typeof paypal !== 'undefined') {
-      // PayPal popup mód
-      window.open(data.approveUrl, '_blank', 'width=450,height=600');
-    } else {
-      setTimeout(() => { window.location.href = data.approveUrl; }, 1500);
-    }
-
-    // Visszatérés kezelése URL paraméterekből
-    window.paypalOrderId = data.orderId;
-    window.paypalPaymentDbId = paymentDbId;
-
-  } catch (err) {
-    showToast('PayPal kapcsolódási hiba: ' + err.message, 'error');
-  }
-}
-
-// PayPal capture (miután visszajön a felhasználó)
-async function capturePayPalPayment(paypalOrderId) {
-  try {
-    const response = await fetch('/api/paypal-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'capture', paypalOrderId })
-    });
-    const data = await response.json();
-    if (data.success) {
-      launchConfetti();
-      showToast('🎉 PayPal fizetés sikeres! Köszönjük!', 'success');
-    } else {
-      showToast('PayPal fizetés sikertelen: ' + data.error, 'error');
-    }
-    return data;
-  } catch (err) {
-    showToast('PayPal capture hiba: ' + err.message, 'error');
-  }
-}
-
-// ============================================================
-// BANKI ÁTUTALÁS INFO
-// ============================================================
-function showBankTransferInfo(orderId, amount) {
-  closeModal('paymentModal');
-  const info = `
-    <div style="text-align:center">
-      <div style="font-size:2rem;margin-bottom:12px">🏦</div>
-      <h3 style="margin-bottom:16px">Banki átutalás adatok</h3>
-      <div style="background:var(--surface2);border-radius:var(--radius);padding:16px;text-align:left;font-size:0.88rem">
-        <div style="margin-bottom:8px"><strong>Kedvezményezett:</strong> PiacTér Kft.</div>
-        <div style="margin-bottom:8px"><strong>Számlaszám:</strong> 12345678-87654321-00000000</div>
-        <div style="margin-bottom:8px"><strong>IBAN:</strong> HU12 1234 5678 8765 4321 0000 0000</div>
-        <div style="margin-bottom:8px"><strong>Összeg:</strong> ${amount?.toLocaleString('hu-HU')} Ft</div>
-        <div style="margin-bottom:8px"><strong>Közlemény:</strong> ${orderId}</div>
-        <div style="color:var(--danger);font-size:0.8rem;margin-top:10px">⚠️ A közleményt pontosan add meg! Nélküle nem tudjuk azonosítani az utalást.</div>
-      </div>
-      <button class="btn btn-primary btn-lg" style="width:100%;margin-top:16px" onclick="navigator.clipboard.writeText('${orderId}').then(()=>showToast('📋 Közlemény másolva!','success'))">📋 Közlemény másolása</button>
-    </div>`;
-
-  document.getElementById('listingDetailBody').innerHTML = info;
-  showModal('listingDetailModal');
-  showToast('🏦 Banki átutalás adatok megjelenítve', 'info');
-}
-
-// ============================================================
-// URL PARAMÉTEREK KEZELÉSE (visszatérés után)
-// ============================================================
-(function handlePaymentReturn() {
-  const params = new URLSearchParams(window.location.search);
-  const paymentStatus = params.get('payment');
-  const orderId = params.get('orderId');
-  const paypalToken = params.get('token'); // PayPal visszatéréskor
-
-  if (paymentStatus === 'success') {
-    setTimeout(() => {
-      launchConfetti();
-      showToast('🎉 Fizetés sikeres! Rendelés azonosító: ' + orderId, 'success');
-      if (paypalToken && window.paypalOrderId) capturePayPalPayment(window.paypalOrderId);
-    }, 500);
-    // URL tisztítás
-    window.history.replaceState({}, document.title, window.location.pathname);
-  } else if (paymentStatus === 'failed') {
-    showToast('❌ A fizetés sikertelen volt. Kérjük próbáld újra!', 'error');
-    window.history.replaceState({}, document.title, window.location.pathname);
-  } else if (paymentStatus === 'cancelled') {
-    showToast('↩️ Fizetés megszakítva.', 'info');
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-})();
-
-// ============================================================
-// 12. KIEMELÉS (BOOST)
-// ============================================================
-
-async function purchaseBoost(listingId, boostType) {
-  if (!window.currentUser) { showModal('loginModal'); return; }
-
-  const prices = { featured: 990, premium: 1990, turbo: 4990 };
-  const durations = { featured: 7, premium: 14, turbo: 30 };
-  const amount = prices[boostType];
-  const days = durations[boostType];
-
-  const endsAt = new Date();
-  endsAt.setDate(endsAt.getDate() + days);
-
-  const { error } = await sb.from('boost_orders').insert({
-    listing_id: listingId,
-    user_id: currentUser.id,
-    boost_type: boostType,
-    amount,
-    status: 'pending',
-    ends_at: endsAt.toISOString()
-  });
-
-  if (error) { showToast(error.message, 'error'); return; }
-
-  // Demo: fizetés után aktivál
-  await sb.from('listings').update({
-    boost_type: boostType,
-    boost_until: endsAt.toISOString()
-  }).eq('id', listingId);
-
-  showToast(`⭐ ${boostType.toUpperCase()} kiemelés aktiválva ${days} napra!`, 'success');
-  await loadListingsFromDB();
-}
-
-// ============================================================
-// 13. ÉRTESÍTÉSEK
-// ============================================================
-
-async function loadNotificationsFromDB() {
-  if (!window.currentUser) return;
-  const { data } = await sb.from('notifications')
-    .select('*').eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false }).limit(20);
-
-  if (!data) return;
-  const unread = data.filter(n => !n.is_read).length;
-  if (unread > 0) document.querySelector('.notif-dot')?.style.setProperty('display', 'block');
-
-  const c = document.getElementById('notifList');
-  if (c) c.innerHTML = data.map(n => `
-    <div style="display:flex;gap:12px;padding:12px;border-bottom:1px solid var(--border);align-items:flex-start;${!n.is_read ? 'background:var(--surface2)' : ''}">
-      <span style="font-size:1.4rem">${notifIcon(n.type)}</span>
-      <div style="flex:1"><div style="font-size:0.88rem;font-weight:${!n.is_read ? '600' : '400'}">${n.message}</div>
-      <div style="font-size:0.75rem;color:var(--text2);margin-top:4px">${timeAgo(n.created_at)}</div></div>
-    </div>`).join('');
-
-  // Olvasottnak jelöl
-  await sb.from('notifications').update({ is_read: true }).eq('user_id', currentUser.id).eq('is_read', false);
-}
-
-function notifIcon(type) {
-  const icons = { message: '💬', sale: '💰', review: '⭐', favorite: '❤️', boost: '⭐', system: '📢' };
-  return icons[type] || '🔔';
-}
-
-// ============================================================
-// 14. MENTETT KERESÉSEK
-// ============================================================
-
-async function saveSearch(query, filters = {}) {
-  if (!window.currentUser) { showModal('loginModal'); return; }
-  await sb.from('saved_searches').insert({
-    user_id: currentUser.id,
-    query,
-    min_price: filters.minPrice,
-    max_price: filters.maxPrice,
-    location: filters.location,
-    notify_email: true
-  });
-  showToast('🔔 Keresés mentve! Értesítünk az új találatokról.', 'success');
-}
-
-// ============================================================
-// 15. AUKCIÓ
-// ============================================================
-
-async function placeBid() {
-  if (!window.currentUser) { showModal('loginModal'); return; }
-  const amount = parseInt(document.getElementById('myBidInput').value);
-
-  if (!amount || amount <= auctionCurrent) {
-    showToast('A licited legalább ' + (auctionCurrent + 1000).toLocaleString('hu-HU') + ' Ft legyen!', 'error'); return;
-  }
-
-  const { error } = await sb.from('auction_bids').insert({
-    listing_id: window.auctionListingId,
-    user_id: currentUser.id,
-    amount
-  });
-
-  if (error) { showToast(error.message, 'error'); return; }
-
-  await sb.from('listings').update({ auction_current_price: amount }).eq('id', window.auctionListingId);
-
-  auctionCurrent = amount;
-  auctionBids.unshift({ user: currentProfile?.username || 'Te', amount, time: new Date().toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' }) });
-  document.getElementById('auctionLeader').textContent = 'Legmagasabb licitáló: Te 🎉';
-  renderAuctionBids();
-  document.getElementById('myBidInput').value = '';
-  showToast('🔨 Licit leadva: ' + amount.toLocaleString('hu-HU') + ' Ft!', 'success');
-}
-
-// ============================================================
-// 16. REALTIME FELIRATKOZÁSOK
-// ============================================================
-
-function setupRealtimeSubscriptions() {
-  if (!window.currentUser) return;
-
-  // Új üzenet figyelés
-  sb.channel('messages')
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'messages'
-    }, payload => {
-      if (payload.new.sender_id !== currentUser?.id) {
-        showToast('💬 Új üzenet érkezett!', 'info');
-        document.querySelector('.notif-dot')?.style.setProperty('display', 'block');
-        if (window.activeThreadId === payload.new.thread_id) {
-          const chat = document.getElementById('chatMessages');
-          if (chat) {
-            chat.innerHTML += `<div class="chat-msg"><div class="chat-bubble">${payload.new.content}</div><div style="font-size:0.7rem;color:var(--text2);margin-top:3px">Most</div></div>`;
-            chat.scrollTop = chat.scrollHeight;
-          }
-        }
-      }
-    })
-    .subscribe();
-
-  // Értesítések figyelés
-  sb.channel('notifications_' + currentUser.id)
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'notifications',
-      filter: `user_id=eq.${currentUser.id}`
-    }, payload => {
-      showToast('🔔 ' + payload.new.message, 'info');
-      loadNotificationsFromDB();
-    })
-    .subscribe();
-
-  // Aukciós licit figyelés
-  sb.channel('auction_bids')
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'auction_bids'
-    }, payload => {
-      if (window.auctionListingId === payload.new.listing_id && payload.new.user_id !== currentUser?.id) {
-        auctionCurrent = payload.new.amount;
-        renderAuctionBids();
-        showToast('🔨 Új licit érkezett: ' + payload.new.amount.toLocaleString('hu-HU') + ' Ft!', 'info');
-      }
-    })
-    .subscribe();
-}
-
-// ============================================================
-// 17. ADMIN FUNKCIÓK
-// ============================================================
-
-async function adminBanListing(listingId) {
-  if (!window.currentUser) return;
-  await sb.from('listings').update({ status: 'banned' }).eq('id', listingId);
-  showToast('🚫 Hirdetés tiltva!', 'success');
-  await loadListingsFromDB();
-}
-
-async function adminBanUser(userId) {
-  if (!window.currentUser) return;
-  await sb.from('profiles').update({ is_banned: true }).eq('id', userId);
-  showToast('🚫 Felhasználó tiltva!', 'success');
-}
-
-async function loadAdminStats() {
-  const [listings, users, payments] = await Promise.all([
-    sb.from('listings').select('id', { count: 'exact' }),
-    sb.from('profiles').select('id', { count: 'exact' }),
-    sb.from('payments').select('amount').eq('status', 'paid')
-  ]);
-
-  const totalRevenue = payments.data?.reduce((sum, p) => sum + p.amount, 0) || 0;
-  return {
-    listings: listings.count || 0,
-    users: users.count || 0,
-    revenue: totalRevenue
-  };
-}
-
-// ============================================================
-// 18. SEGÉDFÜGGVÉNYEK
-// ============================================================
-
-function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  const diff = (Date.now() - new Date(dateStr)) / 1000;
-  if (diff < 60) return 'Épp most';
-  if (diff < 3600) return Math.floor(diff / 60) + ' perce';
-  if (diff < 86400) return Math.floor(diff / 3600) + ' órája';
-  if (diff < 604800) return Math.floor(diff / 86400) + ' napja';
-  return new Date(dateStr).toLocaleDateString('hu-HU');
-}
-
-function conditionLabel(val) {
-  const map = { new: 'Új', like_new: 'Újszerű', good: 'Jó állapotú', used: 'Használt', for_parts: 'Alkatrésznek' };
-  return map[val] || val;
-}
-
-function conditionValue(label) {
-  const map = { 'Új': 'new', 'Újszerű': 'like_new', 'Jó állapotú': 'good', 'Használt': 'used', 'Alkatrésznek': 'for_parts' };
-  return map[label] || 'good';
-}
-
-function updateUIForLoggedInUser() {
-  const p = window.currentProfile;
-  if (!p) return;
-  document.querySelectorAll('[onclick="showModal(\'loginModal\')"]').forEach(b => {
-    b.textContent = '👤 ' + (p.username || '');
-    b.onclick = () => showModal('profileModal');
-  });
-}
-
-function updateUIForLoggedOutUser() {
-  document.querySelectorAll('.user-btn').forEach(b => {
-    b.textContent = '👤 Profil ▾';
-    b.onclick = () => toggleDropdown('userDD');
-  });
-}
-
-// ============================================================
-// 19. CLOUDINARY KÉPFELTÖLTÉS (alternatíva a Supabase Storage helyett)
-// ============================================================
-
-const CLOUDINARY_CLOUD_NAME = 'YOUR_CLOUD_NAME';
-const CLOUDINARY_UPLOAD_PRESET = 'piacter_unsigned';
-
-async function uploadToCloudinary(file) {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-  formData.append('folder', 'piacter/listings');
-
-  try {
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-      method: 'POST', body: formData
-    });
-    const data = await res.json();
-    return data.secure_url;
-  } catch { return null; }
-}
-
-// ============================================================
-// 20. PWA MANIFEST TARTALOM (manifest.json fájlba menteni)
-// ============================================================
-/*
-{
-  "name": "PiacTér",
-  "short_name": "PiacTér",
-  "description": "Magyarország legjobb online piactere",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#f8f9fa",
-  "theme_color": "#e85d04",
-  "orientation": "portrait-primary",
-  "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-  ],
-  "categories": ["shopping", "lifestyle"],
-  "lang": "hu",
-  "shortcuts": [
-    { "name": "Hirdetés feladása", "url": "/?action=new-listing", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Keresés", "url": "/?action=search", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
-  ]
-}
-*/
+
+  UPDATE profiles SET loyalty_level = new_level WHERE id = p_user_id;
+
+  INSERT INTO loyalty_transactions(user_id, points, reason, reference)
+VALUES(p_user_id, p_points, p_reason, p_reference);
+
+  RETURN new_points;
+END;
+$$;
+
+-- -------------------------------------------------------
+    --Hirdetés view számláló(IP alapú duplikáció - szűréssel)
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION increment_listing_views(
+        p_listing_id UUID,
+        p_viewer_id  UUID DEFAULT NULL,
+        p_ip_hash    TEXT DEFAULT NULL
+    )
+RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  already_seen BOOLEAN;
+BEGIN
+--Duplikáció szűrés: ugyanaz az IP / user 1 órán belül ne számolja újra
+  SELECT EXISTS(
+    SELECT 1 FROM listing_views
+    WHERE listing_id = p_listing_id
+      AND(
+        (p_viewer_id IS NOT NULL AND viewer_id = p_viewer_id) OR
+    (p_ip_hash IS NOT NULL AND ip_hash = p_ip_hash)
+)
+      AND viewed_at > NOW() - INTERVAL '1 hour'
+  ) INTO already_seen;
+
+  IF NOT already_seen THEN
+    UPDATE listings SET views = views + 1 WHERE id = p_listing_id;
+    INSERT INTO listing_views(listing_id, viewer_id, ip_hash)
+VALUES(p_listing_id, p_viewer_id, p_ip_hash);
+  END IF;
+END;
+$$;
+
+-- -------------------------------------------------------
+    --Felhasználó átlagos értékelése
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION get_user_rating(p_user_id UUID)
+RETURNS NUMERIC LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+  SELECT ROUND(COALESCE(AVG(rating), 0):: NUMERIC, 2)
+  FROM reviews WHERE reviewed_id = p_user_id;
+$$;
+
+-- -------------------------------------------------------
+    --Lejárt hirdetések törlése(cron job hívja)
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION expire_old_listings()
+RETURNS INTEGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  expired_count INTEGER;
+BEGIN
+  UPDATE listings
+    SET status = 'expired', updated_at = NOW()
+  WHERE status = 'active' AND expires_at < NOW();
+  GET DIAGNOSTICS expired_count = ROW_COUNT;
+  RETURN expired_count;
+END;
+$$;
+
+-- -------------------------------------------------------
+    --Lejárt boost - ok visszaállítása
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION expire_old_boosts()
+RETURNS INTEGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  cnt INTEGER;
+BEGIN
+  UPDATE listings
+    SET boost_type = 'none', boost_until = NULL, updated_at = NOW()
+  WHERE boost_type <> 'none' AND boost_until < NOW();
+  GET DIAGNOSTICS cnt = ROW_COUNT;
+
+  UPDATE boost_orders
+    SET status = 'expired'
+  WHERE status = 'active' AND ends_at < NOW();
+
+  RETURN cnt;
+END;
+$$;
+
+-- -------------------------------------------------------
+    --Kategória hirdetésszám frissítő trigger
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION update_category_count()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+DECLARE
+  affected_id INTEGER;
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+affected_id:= OLD.category_id;
+  ELSIF TG_OP = 'UPDATE' AND OLD.category_id IS DISTINCT FROM NEW.category_id THEN
+--Régi kategória frissítése
+    IF OLD.category_id IS NOT NULL THEN
+      UPDATE categories SET listing_count = (
+    SELECT COUNT(*) FROM listings
+        WHERE category_id = OLD.category_id AND status = 'active'
+      ) WHERE id = OLD.category_id;
+    END IF;
+affected_id:= NEW.category_id;
+ELSE
+affected_id:= NEW.category_id;
+  END IF;
+
+  IF affected_id IS NOT NULL THEN
+    UPDATE categories SET listing_count = (
+    SELECT COUNT(*) FROM listings
+      WHERE category_id = affected_id AND status = 'active'
+    ) WHERE id = affected_id;
+  END IF;
+
+  IF TG_OP = 'DELETE' THEN RETURN OLD; ELSE RETURN NEW; END IF;
+END;
+$$;
+
+CREATE TRIGGER update_cat_count
+  AFTER INSERT OR UPDATE OF status, category_id OR DELETE
+  ON listings
+  FOR EACH ROW EXECUTE FUNCTION update_category_count();
+
+-- -------------------------------------------------------
+    --Full - text search vektor frissítő trigger
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION update_listing_search_vector()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+NEW.search_vector :=
+setweight(to_tsvector('hungarian', COALESCE(NEW.title, '')), 'A') ||
+    setweight(to_tsvector('hungarian', COALESCE(NEW.description, '')), 'B') ||
+    setweight(to_tsvector('simple', COALESCE(NEW.location, '')), 'C');
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER listing_search_vector_update
+  BEFORE INSERT OR UPDATE OF title, description, location
+  ON listings
+  FOR EACH ROW EXECUTE FUNCTION update_listing_search_vector();
+
+-- -------------------------------------------------------
+    --Üzenet szál updated_at + unread számláló trigger
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION handle_new_message()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  thread message_threads % ROWTYPE;
+BEGIN
+SELECT * INTO thread FROM message_threads WHERE id = NEW.thread_id;
+  IF NOT FOUND THEN RETURN NEW; END IF;
+
+  IF NEW.sender_id = thread.buyer_id THEN
+    UPDATE message_threads
+      SET last_message = NEW.content,
+    last_message_at = NEW.created_at,
+    seller_unread = seller_unread + 1
+      WHERE id = NEW.thread_id;
+ELSE
+    UPDATE message_threads
+      SET last_message = NEW.content,
+    last_message_at = NEW.created_at,
+    buyer_unread = buyer_unread + 1
+      WHERE id = NEW.thread_id;
+  END IF;
+
+--Értesítés a másik félnek
+  INSERT INTO notifications(user_id, type, title, message, data)
+VALUES(
+    CASE WHEN NEW.sender_id = thread.buyer_id THEN thread.seller_id ELSE thread.buyer_id END,
+    'message',
+    '💬 Új üzenet',
+    substring(NEW.content, 1, 100),
+    jsonb_build_object('thread_id', NEW.thread_id, 'sender_id', NEW.sender_id)
+);
+
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_new_message
+  AFTER INSERT ON messages
+  FOR EACH ROW EXECUTE FUNCTION handle_new_message();
+
+-- -------------------------------------------------------
+    --Profil updated_at automatikus frissítés
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION touch_updated_at()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+NEW.updated_at := NOW();
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER profiles_updated_at   BEFORE UPDATE ON profiles   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
+CREATE TRIGGER listings_updated_at   BEFORE UPDATE ON listings   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
+CREATE TRIGGER payments_updated_at   BEFORE UPDATE ON payments   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
+
+-- -------------------------------------------------------
+    --Referral feldolgozás
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION process_referral(p_user_id UUID, p_ref_code TEXT)
+RETURNS BOOLEAN LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  referrer_id UUID;
+BEGIN
+  IF p_ref_code IS NULL OR p_user_id IS NULL THEN RETURN FALSE; END IF;
+
+  SELECT id INTO referrer_id FROM profiles
+  WHERE referral_code = upper(p_ref_code) AND id <> p_user_id;
+
+  IF referrer_id IS NULL THEN RETURN FALSE; END IF;
+
+--Referral rekord beszúrása(egyedi, ha már létezik, sikertelen de nem dob hibát)
+  INSERT INTO referrals(referrer_id, referred_id)
+VALUES(referrer_id, p_user_id)
+  ON CONFLICT(referred_id) DO NOTHING;
+
+  IF FOUND THEN
+    PERFORM add_loyalty_points(referrer_id, 100, 'referral_reward', p_user_id:: text);
+    PERFORM add_loyalty_points(p_user_id, 50, 'referral_welcome', referrer_id:: text);
+    UPDATE profiles SET referred_by = referrer_id WHERE id = p_user_id;
+    RETURN TRUE;
+  END IF;
+
+  RETURN FALSE;
+END;
+$$;
+
+-- -------------------------------------------------------
+    --Értékelés leadásakor értesítés
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION notify_on_review()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  reviewer_name TEXT;
+BEGIN
+  SELECT username INTO reviewer_name FROM profiles WHERE id = NEW.reviewer_id;
+  INSERT INTO notifications(user_id, type, title, message, data)
+VALUES(
+    NEW.reviewed_id,
+    'review',
+    '⭐ Új értékelés',
+    reviewer_name || ' ' || NEW.rating || ' csillagos értékelést hagyott rólad.',
+    jsonb_build_object('review_id', NEW.id, 'rating', NEW.rating, 'reviewer_id', NEW.reviewer_id)
+);
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_new_review
+  AFTER INSERT ON reviews
+  FOR EACH ROW EXECUTE FUNCTION notify_on_review();
+
+-- -------------------------------------------------------
+    --Licit leadásakor értesítés az eladónak és az előző licitálónak
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION notify_on_bid()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  listing_rec  listings % ROWTYPE;
+  prev_bidder  UUID;
+  bidder_name  TEXT;
+BEGIN
+SELECT * INTO listing_rec FROM listings WHERE id = NEW.listing_id;
+  SELECT username INTO bidder_name FROM profiles WHERE id = NEW.user_id;
+
+--Értesítés az eladónak
+  INSERT INTO notifications(user_id, type, title, message, data)
+VALUES(
+    listing_rec.user_id, 'auction',
+    '🔨 Új licit érkezett',
+    bidder_name || ' licitet ajánlott: ' || NEW.amount || ' Ft',
+    jsonb_build_object('listing_id', NEW.listing_id, 'amount', NEW.amount)
+);
+
+--Az előző legmagasabb licitáló értesítése(ha más)
+  SELECT user_id INTO prev_bidder
+  FROM auction_bids
+  WHERE listing_id = NEW.listing_id AND user_id <> NEW.user_id
+  ORDER BY amount DESC LIMIT 1;
+
+  IF prev_bidder IS NOT NULL THEN
+    INSERT INTO notifications(user_id, type, title, message, data)
+VALUES(
+    prev_bidder, 'auction',
+    '⚠️ Felülicitáltak',
+    'Az ajánlatodat felülicitálták. Új legmagasabb ajánlat: ' || NEW.amount || ' Ft',
+    jsonb_build_object('listing_id', NEW.listing_id, 'amount', NEW.amount)
+);
+  END IF;
+
+--Aktuális aukciós ár frissítése
+  UPDATE listings
+    SET auction_current_price = NEW.amount, updated_at = NOW()
+  WHERE id = NEW.listing_id AND(auction_current_price IS NULL OR auction_current_price < NEW.amount);
+
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_new_bid
+  AFTER INSERT ON auction_bids
+  FOR EACH ROW EXECUTE FUNCTION notify_on_bid();
+
+-- -------------------------------------------------------
+    --Keresési függvény teljes szöveges kereséshez
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION search_listings(
+        p_query       TEXT DEFAULT NULL,
+        p_category_id INTEGER DEFAULT NULL,
+        p_min_price   INTEGER DEFAULT NULL,
+        p_max_price   INTEGER DEFAULT NULL,
+        p_location    TEXT DEFAULT NULL,
+        p_condition   TEXT DEFAULT NULL,
+        p_limit       INTEGER DEFAULT 20,
+        p_offset      INTEGER DEFAULT 0
+    )
+RETURNS TABLE(
+        id UUID, title TEXT, price INTEGER, location TEXT,
+        images TEXT[], condition TEXT, boost_type TEXT,
+        views INTEGER, created_at TIMESTAMPTZ, rank REAL
+    )
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  tsq TSQUERY;
+BEGIN
+  IF p_query IS NOT NULL AND p_query <> '' THEN
+tsq:= plainto_tsquery('hungarian', p_query);
+  END IF;
+
+  RETURN QUERY
+SELECT
+l.id, l.title, l.price, l.location,
+    l.images, l.condition, l.boost_type,
+    l.views, l.created_at,
+    CASE WHEN tsq IS NOT NULL THEN ts_rank(l.search_vector, tsq) ELSE 1.0 END AS rank
+  FROM listings l
+  WHERE l.status = 'active'
+AND(tsq IS NULL OR l.search_vector @@tsq)
+AND(p_category_id IS NULL OR l.category_id = p_category_id)
+AND(p_min_price IS NULL OR l.price >= p_min_price)
+AND(p_max_price IS NULL OR l.price <= p_max_price)
+AND(p_location IS NULL OR l.location ILIKE '%' || p_location || '%')
+AND(p_condition IS NULL OR l.condition = p_condition)
+  ORDER BY
+    CASE l.boost_type
+      WHEN 'turbo'    THEN 4
+      WHEN 'premium'  THEN 3
+      WHEN 'featured' THEN 2
+      ELSE 1
+    END DESC,
+    CASE WHEN tsq IS NOT NULL THEN ts_rank(l.search_vector, tsq) ELSE 0 END DESC,
+        l.created_at DESC
+  LIMIT p_limit OFFSET p_offset;
+END;
+$$;
+
+-- -------------------------------------------------------
+    --Admin statisztikák
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION get_admin_stats()
+RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  result JSONB;
+BEGIN
+--Csak admin futtathatja
+  IF NOT EXISTS(SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = TRUE) THEN
+    RAISE EXCEPTION 'Nincs jogosultságod!';
+  END IF;
+
+  SELECT jsonb_build_object(
+    'total_listings', (SELECT COUNT(*) FROM listings),
+    'active_listings', (SELECT COUNT(*) FROM listings WHERE status = 'active'),
+'sold_listings', (SELECT COUNT(*) FROM listings WHERE status = 'sold'),
+'total_users', (SELECT COUNT(*) FROM profiles),
+'banned_users', (SELECT COUNT(*) FROM profiles WHERE is_banned = TRUE),
+'total_revenue', (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE status = 'paid'),
+'pending_reports', (SELECT COUNT(*) FROM reports WHERE status = 'pending'),
+'messages_today', (SELECT COUNT(*) FROM messages WHERE created_at > NOW() - INTERVAL '24 hours'),
+'new_users_today', (SELECT COUNT(*) FROM profiles WHERE created_at > NOW() - INTERVAL '24 hours')
+  ) INTO result;
+
+  RETURN result;
+END;
+$$;
+
+-- -------------------------------------------------------
+    --Tiltott szó ellenőrzés hirdetés előtt
+-- -------------------------------------------------------
+    CREATE OR REPLACE FUNCTION check_banned_words()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+DECLARE
+  bad_word TEXT;
+BEGIN
+  FOR bad_word IN SELECT word FROM banned_words LOOP
+    IF NEW.title ILIKE '%' || bad_word || '%' OR
+NEW.description ILIKE '%' || bad_word || '%' THEN
+      RAISE EXCEPTION 'A hirdetés tiltott kifejezést tartalmaz: %', bad_word;
+    END IF;
+  END LOOP;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER listing_banned_words_check
+  BEFORE INSERT OR UPDATE OF title, description
+  ON listings
+  FOR EACH ROW EXECUTE FUNCTION check_banned_words();
+
+-- ============================================================
+    --5. STORAGE BUCKET - EK
+-- ============================================================
+
+    INSERT INTO storage.buckets(id, name, public, file_size_limit, allowed_mime_types)
+VALUES
+    ('avatars', 'avatars', true, 2097152, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']),
+    ('listing-images', 'listing-images', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/webp'])
+ON CONFLICT(id) DO NOTHING;
+
+--Storage RLS
+CREATE POLICY "avatars_public_read"
+  ON storage.objects FOR SELECT
+USING(bucket_id = 'avatars');
+
+CREATE POLICY "avatars_own_upload"
+  ON storage.objects FOR INSERT
+  WITH CHECK(bucket_id = 'avatars' AND auth.uid():: text = (storage.foldername(name))[1]);
+
+CREATE POLICY "avatars_own_update"
+  ON storage.objects FOR UPDATE
+USING(bucket_id = 'avatars' AND auth.uid():: text = (storage.foldername(name))[1]);
+
+CREATE POLICY "avatars_own_delete"
+  ON storage.objects FOR DELETE
+USING(bucket_id = 'avatars' AND auth.uid():: text = (storage.foldername(name))[1]);
+
+CREATE POLICY "listing_images_public_read"
+  ON storage.objects FOR SELECT
+USING(bucket_id = 'listing-images');
+
+CREATE POLICY "listing_images_own_upload"
+  ON storage.objects FOR INSERT
+  WITH CHECK(bucket_id = 'listing-images' AND auth.uid():: text = (storage.foldername(name))[1]);
+
+CREATE POLICY "listing_images_own_delete"
+  ON storage.objects FOR DELETE
+USING(bucket_id = 'listing-images' AND auth.uid():: text = (storage.foldername(name))[1]);
+
+-- ============================================================
+    --6. REALTIME ENGEDÉLYEZÉS
+-- ============================================================
+
+    ALTER PUBLICATION supabase_realtime ADD TABLE messages;
+ALTER PUBLICATION supabase_realtime ADD TABLE message_threads;
+ALTER PUBLICATION supabase_realtime ADD TABLE notifications;
+ALTER PUBLICATION supabase_realtime ADD TABLE auction_bids;
+ALTER PUBLICATION supabase_realtime ADD TABLE listings;
+
+-- ============================================================
+    --7. KATEGÓRIÁK ALAP ADATOK
+-- ============================================================
+
+    INSERT INTO categories(name, slug, icon, sort_order) VALUES
+        ('Elektronika', 'elektronika', '📱', 1),
+        ('Ruha & Divat', 'ruha-divat', '👗', 2),
+        ('Járművek', 'jarmu', '🚗', 3),
+        ('Ingatlan', 'ingatlan', '🏠', 4),
+        ('Sport & Szabadidő', 'sport', '⚽', 5),
+        ('Ház & Kert', 'haz-kert', '🛋', 6),
+        ('Könyvek & Játékok', 'konyvek', '📚', 7),
+        ('Gyerek', 'gyerek', '🧸', 8),
+        ('Állatoknak', 'allatok', '🐾', 9),
+        ('Munka & Szolgáltatás', 'munka', '💼', 10);
+
+INSERT INTO categories(name, slug, icon, parent_id, sort_order) VALUES
+--Elektronika alkategóriák
+    ('Mobiltelefonok', 'mobil', '📱', 1, 1),
+    ('Laptopok', 'laptop', '💻', 1, 2),
+    ('Táblagépek', 'tablet', '📟', 1, 3),
+    ('TV & Hangszórók', 'tv', '📺', 1, 4),
+    ('Fényképezőgépek', 'fenykep', '📷', 1, 5),
+    ('Konzolok & Játékok', 'konzol', '🎮', 1, 6),
+    ('Számítógépek', 'szamitogep', '🖥️', 1, 7),
+    --Ruha alkategóriák
+        ('Női ruházat', 'noi-ruha', '👗', 2, 1),
+        ('Férfi ruházat', 'ferfi-ruha', '👔', 2, 2),
+        ('Cipők', 'cipok', '👟', 2, 3),
+        ('Táskák & Kiegészítők', 'taskak', '👜', 2, 4),
+        --Jármű alkategóriák
+            ('Személyautók', 'szemelya', '🚗', 3, 1),
+            ('Motorkerékpárok', 'motor', '🏍️', 3, 2),
+            ('Kerékpárok', 'kerekpar', '🚲', 3, 3),
+            ('Alkatrészek', 'alkatresz', '🔧', 3, 4),
+            --Ingatlan alkategóriák
+                ('Eladó lakások', 'elado-lakas', '🏢', 4, 1),
+                ('Kiadó lakások', 'kiado-lakas', '🏘️', 4, 2),
+                ('Eladó házak', 'elado-haz', '🏡', 4, 3),
+                --Ház & Kert alkategóriák
+                    ('Bútorok', 'butorok', '🛋', 6, 1),
+                    ('Háztartási gépek', 'hzt-gepek', '🫙', 6, 2),
+                    ('Kerti eszközök', 'kerti', '🌱', 6, 3);
+
+-- ============================================================
+    --8. TILTOTT SZAVAK(alap lista)
+-- ============================================================
+
+    INSERT INTO banned_words(word) VALUES
+        ('spam'), ('scam'), ('casino'), ('szerencsejáték')
+ON CONFLICT DO NOTHING;
+
+-- ============================================================
+    --KÉSZ! A Supabase backend production - ready állapotban van.
+-- ============================================================
