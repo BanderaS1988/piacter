@@ -2827,9 +2827,81 @@ function acceptGDPR() {
 }
 
 // ========== AUTH ==========
-function doLogin() { closeModal('loginModal'); showToast('✅ Sikeres bejelentkezés!','success'); }
-function doRegister() { closeModal('registerModal'); showToast('✅ Sikeres regisztráció! Ellenőrizd az e-mailed.','success'); }
-function saveProfile() { showToast('✅ Profil mentve!','success'); }
+async function doLogin() {
+  const email = document.querySelector('#loginModal input[type="email"]').value;
+  const password = document.querySelector('#loginModal input[type="password"]').value;
+
+  if (!email || !password) {
+    showToast('Töltsd ki az összes mezőt!', 'error');
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    showToast('Hibás e-mail vagy jelszó!', 'error');
+    return;
+  }
+
+  closeModal('loginModal');
+  showToast('✅ Sikeres bejelentkezés!', 'success');
+}
+
+async function doRegister() {
+  const inputs = document.querySelectorAll('#registerModal input');
+  const firstName = inputs[0].value;
+  const lastName = inputs[1].value;
+  const username = inputs[2].value;
+  const email = inputs[3].value;
+  const password = inputs[4].value;
+  const passwordConfirm = inputs[5].value;
+  const phone = inputs[6].value;
+  const termsAccepted = document.querySelector('#registerModal input[type="checkbox"]').checked;
+
+  if (!firstName || !lastName || !username || !email || !password) {
+    showToast('Töltsd ki az összes kötelező mezőt!', 'error');
+    return;
+  }
+  if (password !== passwordConfirm) {
+    showToast('A jelszavak nem egyeznek!', 'error');
+    return;
+  }
+  if (password.length < 8) {
+    showToast('A jelszó legalább 8 karakter legyen!', 'error');
+    return;
+  }
+  if (!termsAccepted) {
+    showToast('El kell fogadnod az ÁSZF-et!', 'error');
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: {
+        username: username,
+        full_name: lastName + ' ' + firstName,
+        phone: phone
+      }
+    }
+  });
+
+  if (error) {
+    showToast(error.message, 'error');
+    return;
+  }
+
+  closeModal('registerModal');
+  showToast('✅ Sikeres regisztráció! Ellenőrizd az e-mailed a megerősítéshez.', 'success');
+}
+
+function saveProfile() { 
+  showToast('✅ Profil mentve!', 'success'); 
+}}
 
 // ========== TOAST ==========
 function showToast(msg, type='info') {
