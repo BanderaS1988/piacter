@@ -2230,55 +2230,35 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // ============================================================
 // SUPABASE SDK BETÖLTÉSE ÉS INICIALIZÁLÁSA
 // ============================================================
+// Cseréld le a teljes (function loadSupabase()) blokkot:
+let sbReady = false;
+let sbReadyCallbacks = [];
+
+function onSbReady(fn) {
+  if (sbReady) fn();
+  else sbReadyCallbacks.push(fn);
+}
+
 (function loadSupabase() {
-  console.log('🔄 Supabase SDK betöltése...');
-  
   const script = document.createElement('script');
   script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
   script.crossOrigin = 'anonymous';
-  
   script.onload = () => {
-    console.log('✅ Supabase SDK script betöltve!');
-    
-    // Várunk egy kicsit, hogy a supabase globális változó elérhető legyen
-    setTimeout(() => {
-      try {
-        if (typeof supabase === 'undefined') {
-          console.error('❌ supabase globális változó nem található!');
-          return;
-        }
-        
-        console.log('✅ supabase objektum elérhető:', supabase);
-        
-        // Supabase client létrehozása
-        window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-          auth: {
-            autoRefreshToken: true,
-            persistSession: true,
-            detectSessionInUrl: true
-          }
-        });
-        
-        console.log('✅ Supabase inicializálva!', window.sb);
-        console.log('✅ window.sb.auth elérhető:', window.sb.auth);
-        
-        // Teszteljük hogy működik-e
-        if (window.sb && window.sb.auth) {
-          console.log('🎉 MINDEN RENDBEN! A regisztráció most már működnie kell!');
-        }
-      } catch (error) {
-        console.error('❌ Hiba az inicializálás során:', error);
-      }
-    }, 100);
+    try {
+      window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
+      });
+      sbReady = true;
+      sbReadyCallbacks.forEach(fn => fn());
+      sbReadyCallbacks = [];
+      console.log('✅ Supabase kész!');
+    } catch (e) {
+      console.error('❌ Supabase init hiba:', e);
+    }
   };
-  
-  script.onerror = (error) => {
-    console.error('❌ Supabase SDK betöltése SIKERTELEN!', error);
-  };
-  
+  script.onerror = () => console.error('❌ Supabase SDK betöltés sikertelen!');
   document.head.appendChild(script);
 })();
-
 
 
 // ========== DATA ==========
@@ -2356,6 +2336,95 @@ document.addEventListener('DOMContentLoaded', () => {
   initCounter();
 });
 
+// Kijelentkezés – csere a dropdown-ban: onclick="" helyett onclick="doLogout()"
+async function doLogout() {
+  if (!window.sb) return;
+  await window.sb.auth.signOut();
+  window.currentUser = null;
+  updateUIAfterLogout();
+  showToast('👋 Sikeresen kijelentkeztél!', 'info');
+  showPage('home');
+}
+
+// UI frissítés bejelentkezés után
+function updateUIAfterLogin(profile) {
+  // Felhasználó dropdown frissítése
+  const userDD = document.getElementById('userDD');
+  if (userDD) {
+    userDD.innerHTML = `
+      <div style="padding:10px 16px;border-bottom:1px solid var(--border)">
+        <div style="font-weight:700">${profile.username}</div>
+        <div style="font-size:0.78rem;color:var(--text2)">${profile.email || ''}</div>
+        ${profile.loyalty_level ? `<div style="font-size:0.75rem;margin-top:4px">🏆 ${profile.loyalty_level.charAt(0).toUpperCase()+profile.loyalty_level.slice(1)} szint · ${profile.loyalty_points} pont</div>` : ''}
+      </div>
+      <button class="dropdown-item" onclick="showPage('dashboard')">📊 Irányítópult</button>
+      <button class="dropdown-item" onclick="showModal('profileModal')">👤 Profil</button>
+      <button class="dropdown-item" onclick="showPage('myListings')">📋 Hirdetéseim</button>
+      <button class="dropdown-item" onclick="showModal('messagesModal')">💬 Üzenetek</button>
+      <button class="dropdown-item" onclick="showModal('loyaltyModal')">🏆 Hűségprogram</button>
+      <div class="dropdown-divider"></div>
+      ${profile.is_admin ? '<button class="dropdown-item" onclick="showModal(\'adminModal\')">🔧 Admin panel</button><div class="dropdown-divider"></div>' : ''}
+      <button class="dropdown-item" style="color:var(--danger)" onclick="doLogout()">🚪 Kijelentkezés</button>
+    `;
+  }
+
+  // Profil modal frissítése
+  const pa = document.getElementById('profileAvatar');
+  const pn = document.getElementById('profileName');
+  if (pa) pa.textContent = profile.username.substring(0,2).toUpperCase();
+  if (pn) pn.textContent = profile.full_name || profile.username;
+
+  // Ha tiltott
+  if (profile.is_banned) {
+    showToast('🚫 A fiókod tiltva van. Kapcsolatfelvétel: info@piacter.hu', 'error');
+    doLogout();
+  }
+}
+
+// UI visszaállítás kijelentkezés után
+function updateUIAfterLogout() {
+  const userDD = document.getElementById('userDD');
+  if (userDD) {
+    userDD.innerHTML = `
+      <button class="dropdown-item" onclick="showModal('loginModal')">🔐 Bejelentkezés</button>
+      <button class="dropdown-item" onclick="showModal('registerModal')">📝 Regisztráció</button>
+      <div class="dropdown-divider"></div>
+      <button class="dropdown-item" onclick="showPage('dashboard')">📊 Irányítópult</button>
+      <button class="dropdown-item" onclick="showModal('profileModal')">👤 Profil</button>
+      <button class="dropdown-item" onclick="showPage('myListings')">📋 Hirdetéseim</button>
+      <div class="dropdown-divider"></div>
+      <button class="dropdown-item" style="color:var(--danger)">🚪 Kilépés</button>
+    `;
+  }
+}
+
+// Session visszaállítás oldal betöltéskor
+(async function checkSession() {
+  const wait = (ms) => new Promise(r => setTimeout(r, ms));
+  await wait(300); // Supabase init-et bevárjuk
+  if (!window.sb) return;
+
+  const { data: { session } } = await window.sb.auth.getSession();
+  if (session) {
+    const { data: profile } = await window.sb.from('profiles').select('*').eq('id', session.user.id).single();
+    if (profile) {
+      window.currentUser = { ...session.user, profile };
+      updateUIAfterLogin(profile);
+    }
+  }
+
+  // Auth state változás figyelése
+  window.sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      const { data: profile } = await window.sb.from('profiles').select('*').eq('id', session.user.id).single();
+      if (profile) { window.currentUser = { ...session.user, profile }; updateUIAfterLogin(profile); }
+    } else if (event === 'SIGNED_OUT') {
+      window.currentUser = null;
+      updateUIAfterLogout();
+    }
+  });
+})();
+  
 // ========== CATEGORIES ==========
 function renderCategories() {
   const tree = document.getElementById('catTree');
@@ -2674,6 +2743,53 @@ function submitListing() {
 
 function saveDraft() { showToast('💾 Piszkozat mentve!','info'); }
 
+async function doLogin() {
+  if (!window.sb) { showToast('⏳ Kérlek várj, az oldal még töltődik...', 'error'); return; }
+  
+  const inputs = document.querySelectorAll('#loginModal input');
+  const email = inputs[0].value.trim();
+  const password = inputs[1].value;
+  const remember = inputs[2].checked;
+
+  if (!email || !password) { showToast('Add meg az e-mail címed és jelszavad!', 'error'); return; }
+
+  showToast('⏳ Bejelentkezés...', 'info');
+
+  const { data, error } = await window.sb.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    const msg = {
+      'Invalid login credentials': 'Hibás e-mail vagy jelszó!',
+      'Email not confirmed': 'Erősítsd meg az e-mail címed!',
+      'Too many requests': 'Túl sok próbálkozás, várj egy kicsit!'
+    }[error.message] || error.message;
+    showToast('❌ ' + msg, 'error');
+    return;
+  }
+
+  // Session perzisztencia
+  if (!remember) {
+    await window.sb.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token
+    });
+  }
+
+  // Profil lekérése
+  const { data: profile } = await window.sb.from('profiles').select('*').eq('id', data.user.id).single();
+
+  if (profile) {
+    window.currentUser = { ...data.user, profile };
+    updateUIAfterLogin(profile);
+  }
+
+  closeModal('loginModal');
+  showToast('✅ Sikeresen bejelentkeztél! Üdv, ' + (profile?.username || email) + '!', 'success');
+
+  // Last seen frissítés
+  await window.sb.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', data.user.id);
+}
+  
 // ========== MESSAGES ==========
 function renderMessages() {
   const list = document.getElementById('msgList');
@@ -2787,9 +2903,75 @@ function selectPay(el, method) {
   el.classList.add('selected');
 }
 
-function processPayment() {
-  showToast('💳 Átirányítás a fizetési felületre...','info');
-  setTimeout(() => { closeModal('paymentModal'); showToast('✅ Fizetés sikeres! Köszönjük a vásárlást!','success'); },1500);
+async function processPayment() {
+  const method = document.querySelector('#paymentModal .payment-option.selected');
+  if (!method) { showToast('Válassz fizetési módot!', 'error'); return; }
+  
+  const methodType = method.querySelector('.pay-name').textContent.toLowerCase();
+  const totalEl = document.getElementById('payTotal');
+  const itemEl  = document.getElementById('payItem');
+  const amount  = parseInt((totalEl.textContent || '0').replace(/\D/g,''));
+  const item    = itemEl.textContent;
+
+  if (!window.currentUser) { 
+    showToast('A fizetéshez be kell jelentkezned!', 'error');
+    closeModal('paymentModal');
+    showModal('loginModal');
+    return;
+  }
+
+  showToast('⏳ Fizetés előkészítése...', 'info');
+
+  // Rendelés rögzítése DB-ben
+  const orderId = 'PT-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
+  
+  const { error: dbError } = await window.sb.from('payments').insert({
+    order_id:  orderId,
+    buyer_id:  window.currentUser.id,
+    seller_id: window.currentUser.id, // TODO: valós seller_id az adott hirdetésből
+    amount,
+    method:    methodType.includes('barion') ? 'barion' : methodType.includes('paypal') ? 'paypal' : methodType.includes('bank') ? 'bank_transfer' : 'cash',
+    status:    'pending'
+  });
+
+  if (dbError) { showToast('❌ Adatbázis hiba: ' + dbError.message, 'error'); return; }
+
+  if (methodType.includes('barion')) {
+    // Barion fizetési oldal megnyitása (backend API szükséges)
+    showToast('💳 Átirányítás a Barion fizetési oldalra...', 'info');
+    setTimeout(() => {
+      // window.location.href = '/api/barion/start?order=' + orderId;
+      // DEMO módban:
+      closeModal('paymentModal');
+      showToast('✅ Barion fizetés sikeres! (demo) Rendelés: ' + orderId, 'success');
+      triggerConfetti();
+    }, 1500);
+
+  } else if (methodType.includes('paypal')) {
+    showToast('🅿️ Átirányítás a PayPal oldalra...', 'info');
+    setTimeout(() => {
+      // window.location.href = '/api/paypal/start?order=' + orderId;
+      closeModal('paymentModal');
+      showToast('✅ PayPal fizetés sikeres! (demo) Rendelés: ' + orderId, 'success');
+      triggerConfetti();
+    }, 1500);
+
+  } else if (methodType.includes('bank')) {
+    closeModal('paymentModal');
+    showToast('🏦 Banki átutalás adatai e-mailben elküldve!', 'success');
+    // Értesítés küldése
+    await window.sb.from('notifications').insert({
+      user_id: window.currentUser.id,
+      type:    'purchase',
+      title:   '🏦 Banki átutalás adatok',
+      message: `Rendelés: ${orderId} | Összeg: ${amount.toLocaleString('hu-HU')} Ft | Közlemény: ${orderId}`
+    });
+
+  } else {
+    // Készpénz
+    closeModal('paymentModal');
+    showToast('💵 Személyes átvételkor fizess készpénzzel! Rendelés: ' + orderId, 'success');
+  }
 }
 
 // ========== BOOST ==========
@@ -2882,65 +3064,70 @@ function acceptGDPR() {
 }
 
 async function doRegister() {
-  // ✅ ELSŐ LÉPÉS: Ellenőrizzük, hogy a Supabase betöltődött-e
-  if (!window.sb) {
-    showToast('⏳ Kérlek várj, az oldal még töltődik...', 'error');
-    console.error('❌ Supabase (window.sb) még nincs inicializálva!');
-    return;
-  }
+  if (!window.sb) { showToast('⏳ Kérlek várj, az oldal még töltődik...', 'error'); return; }
 
   const inputs = document.querySelectorAll('#registerModal input');
-  const firstName = inputs[0].value;
-  const lastName = inputs[1].value;
-  const username = inputs[2].value;
-  const email = inputs[3].value;
-  const password = inputs[4].value;
-  const passwordConfirm = inputs[5].value;
-  const phone = inputs[6].value;
-  const termsAccepted = document.querySelector('#registerModal input[type="checkbox"]').checked;
+  const firstName  = inputs[0].value.trim();
+  const lastName   = inputs[1].value.trim();
+  const username   = inputs[2].value.trim();
+  const email      = inputs[3].value.trim();
+  const password   = inputs[4].value;
+  const passwordCf = inputs[5].value;
+  const phone      = inputs[6].value.trim();
+  const terms      = document.querySelector('#registerModal input[type="checkbox"]').checked;
 
   if (!firstName || !lastName || !username || !email || !password) {
-    showToast('Töltsd ki az összes kötelező mezőt!', 'error');
-    return;
+    showToast('Töltsd ki az összes kötelező mezőt!', 'error'); return;
   }
-  if (password !== passwordConfirm) {
-    showToast('A jelszavak nem egyeznek!', 'error');
-    return;
-  }
-  if (password.length < 8) {
-    showToast('A jelszó legalább 8 karakter legyen!', 'error');
-    return;
-  }
-  if (!termsAccepted) {
-    showToast('El kell fogadnod az ÁSZF-et!', 'error');
-    return;
+  if (password !== passwordCf) { showToast('A jelszavak nem egyeznek!', 'error'); return; }
+  if (password.length < 8)     { showToast('A jelszó legalább 8 karakter legyen!', 'error'); return; }
+  if (!terms)                  { showToast('El kell fogadnod az ÁSZF-et!', 'error'); return; }
+  if (!/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
+    showToast('A felhasználónév csak betűt, számot és _ karaktert tartalmazhat (3–30 karakter)!', 'error'); return;
   }
 
-  // ✅ KONZOL LOGOLÁS DEBUG-OLÁSHOZ
-  console.log('🔄 Regisztráció indítása...', { email, username });
+  // Username foglaltság ellenőrzés
+  const { data: existing } = await window.sb.from('profiles').select('id').eq('username', username).maybeSingle();
+  if (existing) { showToast('Ez a felhasználónév már foglalt!', 'error'); return; }
+
+  showToast('⏳ Regisztráció folyamatban...', 'info');
 
   const { data, error } = await window.sb.auth.signUp({
-    email: email,
-    password: password,
+    email,
+    password,
     options: {
       data: {
-        username: username,
+        username,
         full_name: lastName + ' ' + firstName,
-        phone: phone
+        phone
       }
     }
   });
 
-  // ✅ RÉSZLETES HIBAÜZENET
   if (error) {
-    console.error('❌ Regisztrációs hiba:', error);
-    showToast(error.message, 'error');
+    const msg = {
+      'User already registered': 'Ez az e-mail cím már regisztrált!',
+      'Password should be at least 6 characters': 'A jelszó legalább 6 karakter legyen!',
+      'Unable to validate email address: invalid format': 'Érvénytelen e-mail cím!'
+    }[error.message] || error.message;
+    showToast('❌ ' + msg, 'error');
     return;
   }
 
-  console.log('✅ Regisztráció sikeres:', data);
+  // Ha az e-mail megerősítés ki van kapcsolva Supabase-ben, azonnal bejelentkezik
+  if (data.session) {
+    window.currentUser = { ...data.user, profile: null };
+    const { data: profile } = await window.sb.from('profiles').select('*').eq('id', data.user.id).single();
+    if (profile) { window.currentUser.profile = profile; updateUIAfterLogin(profile); }
+  }
+
   closeModal('registerModal');
-  showToast('✅ Sikeres regisztráció! Ellenőrizd az e-mailed a megerősítéshez.', 'success');
+  showToast(
+    data.session
+      ? '🎉 Sikeres regisztráció! Üdvözlünk a PiacTéren!'
+      : '✅ Regisztráció sikeres! Erősítsd meg az e-mail címed a bejelentkezéshez.',
+    'success'
+  );
 }
 
 // ========== TOAST ==========
@@ -3067,14 +3254,62 @@ function startAuctionTimer() {
 }
 
 // ========== FORMSPREE CONTACT ==========
-function submitContact(e) {
+async function submitContact(e) {
   e.preventDefault();
   const form = document.getElementById('contactForm');
-  fetch(form.action,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}})
-    .then(r=>{
-      if(r.ok){closeModal('contactModal');showToast('✅ Üzenet elküldve! Hamarosan válaszolunk.','success');}
-      else showToast('❌ Hiba a küldés során. Próbáld újra!','error');
-    }).catch(()=>{ closeModal('contactModal'); showToast('✅ Üzenet elküldve! (demo mód)','success'); });
+  const btn  = form.querySelector('button[type="submit"]');
+  const originalText = btn.textContent;
+
+  // Validáció
+  const name    = form.querySelector('[name="name"]').value.trim();
+  const email   = form.querySelector('[name="email"]').value.trim();
+  const message = form.querySelector('[name="message"]').value.trim();
+  if (!name || !email || !message) { showToast('Töltsd ki a kötelező mezőket!', 'error'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Érvénytelen e-mail cím!', 'error'); return; }
+
+  btn.textContent = '⏳ Küldés...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(form.action, {
+      method:  'POST',
+      body:    new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (res.ok) {
+      // Supabase-be is rögzítjük ha be van jelentkezve
+      if (window.currentUser && window.sb) {
+        await window.sb.from('admin_logs').insert({
+          action:      'contact_form',
+          target_type: 'contact',
+          details: {
+            name,
+            email,
+            subject: form.querySelector('[name="subject"]')?.value,
+            message
+          }
+        });
+      }
+      form.reset();
+      closeModal('contactModal');
+      showToast('✅ Üzenet elküldve! Általában 24 órán belül válaszolunk.', 'success');
+    } else {
+      const data = await res.json();
+      if (data.errors) {
+        showToast('❌ ' + data.errors.map(e => e.message).join(', '), 'error');
+      } else {
+        showToast('❌ Hiba a küldés során. Próbáld újra!', 'error');
+      }
+    }
+  } catch (err) {
+    // Hálózati hiba – fallback
+    console.error('Contact form error:', err);
+    showToast('❌ Hálózati hiba. Írj direktben: info@piacter.hu', 'error');
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
 }
 
 // ========== INVOICE ==========
